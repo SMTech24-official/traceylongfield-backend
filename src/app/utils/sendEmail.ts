@@ -2,8 +2,8 @@ import config from "../config";
 
 import  nodemailer from "nodemailer"
 
-export const sendEmail = async (to: string, html: string) => {
-  console.log(config.mail,config.mail_pass, to)
+export const sendEmail = async (to: string, html: string,subject:string) => {
+ 
  try {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -19,7 +19,7 @@ export const sendEmail = async (to: string, html: string) => {
    await transporter.sendMail({
     from: 'akonhasan680@gmail.com', // sender address
     to, // list of receivers
-    subject: 'Please active your account!', // Subject line
+    subject, // Subject line
     text: '', // plain text body
     html, // html body
   });

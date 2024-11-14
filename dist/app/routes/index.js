@@ -10,7 +10,7 @@ const moduleRoutes = [
     },
     { path: '/auth',
         route: auth_route_1.AuthRoutes
-    }
+    },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 exports.default = router;

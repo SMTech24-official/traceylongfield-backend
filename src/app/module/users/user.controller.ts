@@ -23,21 +23,31 @@ const createAdmin= catchAsync(async (req, res) => {
       data: result,
     });
   });
-const activeAccount= catchAsync(async (req, res) => {
-  const id=req.query.id
- const result=await userServices.activeAccount(id) 
-  
+
+  const verifyOtp = catchAsync(async (req, res) => {
+    const result = await userServices.verifyOtp(req.body);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'account activete successfully',
+      message: "Otp verify successfully!",
       data: result,
     });
-  });
-  
+   
+  }); 
+  const updateUserProfile = catchAsync(async (req, res) => {
+    const result = await userServices.updateUserProfile(req);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "update user profile successfully!",
+      data: result,
+    });
+   
+  }); 
 
   export const userController={
     createUser,
-    activeAccount,
-    createAdmin
+    verifyOtp,
+    createAdmin,
+    updateUserProfile
   }

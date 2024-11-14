@@ -17,10 +17,10 @@ const loginUser = async (payload: TLoginUser) => {
     }
     // checking if the user is already deleted
 
-    const isDeleted = user?.isActive;
+    const isVerified = user?.isVerified;
 
-    if (!isDeleted) {
-        throw new AppError(httpStatus.FORBIDDEN, 'This user is not active!');
+    if (!isVerified) {
+        throw new AppError(httpStatus.FORBIDDEN, 'This user is not verified!');
     }
 
 
@@ -69,9 +69,9 @@ const changePassword = async (
     }
     // checking if the user is already deleted
 
-    const isDeleted = user?.isActive;
+    const isVerified = user?.isVerified;
 
-    if (!isDeleted) {
+    if (!isVerified) {
         throw new AppError(httpStatus.FORBIDDEN, 'This user is not active!');
     }
 
@@ -111,9 +111,9 @@ const refreshToken = async (token: string) => {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user?.isActive;
+    const isVerified = user?.isVerified;
 
-    if (!isDeleted) {
+    if (!isVerified) {
         throw new AppError(httpStatus.FORBIDDEN, 'This user is not active!');
     }
 
@@ -146,9 +146,9 @@ const forgetPassword = async (email: string) => {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user?.isActive;
+    const isVerified = user?.isVerified;
 
-    if (!isDeleted) {
+    if (!isVerified) {
         throw new AppError(httpStatus.FORBIDDEN, 'This user is not active !');
     }
 
@@ -167,7 +167,7 @@ const forgetPassword = async (email: string) => {
 
     const resetUILink = `${config.activeLink}?id=${user.id}&token=${resetToken} `;
 
-    sendEmail(user.email, resetUILink);
+ //   sendEmail(user.email, resetUILink);
 
 
 };
@@ -183,9 +183,9 @@ const resetPassword = async (
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user?.isActive;
+    const isVerified = user?.isVerified;
 
-    if (!isDeleted) {
+    if (!isVerified) {
         throw new AppError(httpStatus.FORBIDDEN, 'This user is not activate!');
     }
 

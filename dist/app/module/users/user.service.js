@@ -56,6 +56,9 @@ const config_1 = __importDefault(require("../../config"));
 const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     payload.password = yield argon2.hash(payload.password);
     const result = yield user_model_1.User.create(payload);
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, "User create failed");
+    }
     const resetUILink = `${config_1.default.activeLink}?id=${result._id}`;
     // const resetUILink = `<button onclick=()=>(console.l)>Active account</button>`
     yield (0, sendEmail_1.sendEmail)(payload.email, `

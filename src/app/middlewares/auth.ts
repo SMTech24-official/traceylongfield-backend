@@ -32,10 +32,10 @@ const auth = (...requiredRoles: TUserRole[]) => {
     }
     // checking if the user is already deleted
 
-    const isDeleted = user?.isActive;
+    const isDeleted = user?.isVerified;
 
     if (!isDeleted) {
-      throw new AppError(httpStatus.FORBIDDEN, 'This user is not active !');
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is not verified !');
     }
 
    
