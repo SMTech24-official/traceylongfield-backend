@@ -1,14 +1,17 @@
 export interface IUser {
     id?: string;
+    fullName:string;
+    reviewerName:string;
+    amazonCountry:string;
+    amazonAuthorPageLink:string;
     email: string;
-    username: string;
     password: string;
     role: 'admin' | 'author'|"superAdmin";
-    level: number;
     points: number;
-    streak: number;
-    avatar: string;
-    isActive:boolean;
+    profileImage: string;
+    isVerified:boolean;
+    isSubscribed:boolean;
+    plane:string;
     invitedFriends: number;
     createdAt: Date;
     updatedAt: Date;
