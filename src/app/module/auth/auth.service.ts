@@ -62,7 +62,7 @@ const changePassword = async (
     payload: { oldPassword: string; newPassword: string },
 ) => {
     // checking if the user is exist
-    const user = await User.findOne({ email: userData.email })
+    const user = await User.findOne({ _id: userData.userId })
 
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
@@ -72,7 +72,7 @@ const changePassword = async (
     const isVerified = user?.isVerified;
 
     if (!isVerified) {
-        throw new AppError(httpStatus.FORBIDDEN, 'This user is not active!');
+        throw new AppError(httpStatus.FORBIDDEN, 'This user is not verified!');
     }
 
 
@@ -84,7 +84,6 @@ const changePassword = async (
 
     //hash new password
     const newHashedPassword = await argon2.hash(payload.newPassword);
-
     await User.findOneAndUpdate(
         {
             _id: userData.userId,
