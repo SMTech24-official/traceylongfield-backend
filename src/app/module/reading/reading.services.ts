@@ -126,12 +126,13 @@ const getCompleteReview = async (user: JwtPayload) => {
   };
 
   
-  const getSingleBook = async (user: JwtPayload,reviewId:string) =>{
+  const getSingleReview = async (user: JwtPayload,reviewId:string) =>{
     const readingBook = await ReadingBook.findOne({
       _id:reviewId,
     }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });
     return readingBook
   }
+
 export const readingService = {
   startReading,
   finishReading,
@@ -139,5 +140,5 @@ export const readingService = {
   getToReviewOverDueBook,
   completeReview,
   getCompleteReview,
-  getSingleBook
+  getSingleReview
 };
