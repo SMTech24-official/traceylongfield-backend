@@ -1,3 +1,4 @@
+
 import { JwtPayload } from "jsonwebtoken";
 import { ReadingBook } from "./reading.model";
 import AppError from "../../errors/AppError";
@@ -115,7 +116,7 @@ const getCompleteReview = async (user: JwtPayload) => {
     const readingBook = await ReadingBook.find({
       userId: user.userId,
       readingStatus: "finished",
-    });
+    }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });
   
     if (!readingBook) {
       throw new AppError(httpStatus.NOT_FOUND, "No reading book found");
@@ -125,11 +126,18 @@ const getCompleteReview = async (user: JwtPayload) => {
   };
 
   
+  const getSingleBook = async (user: JwtPayload,reviewId:string) =>{
+    const readingBook = await ReadingBook.findOne({
+      _id:reviewId,
+    }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });
+    return readingBook
+  }
 export const readingService = {
   startReading,
   finishReading,
   getToReviewedBook,
   getToReviewOverDueBook,
   completeReview,
-  getCompleteReview
+  getCompleteReview,
+  getSingleBook
 };

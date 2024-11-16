@@ -6,7 +6,7 @@ export interface IAddBook{
     userId:Types.ObjectId
     authorName: string;
     amazonBookUrl: string;
-    bookReader:string;
+    bookFormate:string;
     bookCover:string;
     bookPdf?:string;
     genre:string;

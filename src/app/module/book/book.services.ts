@@ -4,12 +4,12 @@ import httpStatus from "http-status";
 import config from "../../config";
 import { Book } from "./book.model";
 import { JwtPayload } from "jsonwebtoken";
+import { Notification } from "../activity/activity.model";
 
 const insertBookIntoDB=async(req:Request)=>{
     const user=req.user
      const files = req.files as any;
-     console.log(files.bookReader)
-    if (!files || !files.bookReader || !files.bookCover|| !files.bookPdf) {
+    if (!files|| !files.bookCover|| !files.bookPdf) {
         
         throw new AppError(
           httpStatus.BAD_REQUEST,
@@ -48,6 +48,10 @@ const insertBookIntoDB=async(req:Request)=>{
       const result=await Book.create(payload)
       if(!result) {
         throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to insert book into DB");
+      }
+
+      if(result){
+        await Notification.create({user: user.userId, message:`your book ${bookData.title} has been submitted for approval`})
       }
       return result
 }
