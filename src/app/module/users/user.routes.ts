@@ -6,7 +6,7 @@ import { fileUploader } from "../../helpers/fileUpload";
 
 const router=Router()
 router.post("/register",userController.createUser)
-router.post("/make-admin",userController.createAdmin)
+
 router.post("/verify-otp", userController.verifyOtp);
 router.patch("/update-profile",auth(USER_ROLE.author,USER_ROLE.admin),fileUploader.uploadSingle, userController.updateUserProfile)
 

@@ -13,16 +13,7 @@ const createUser= catchAsync(async (req, res) => {
       data: result,
     });
   });
-const createAdmin= catchAsync(async (req, res) => {
- const result=await userServices.createAdmin(req.body) 
-  
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'User registered successfully. Please check your email for account activation.',
-      data: result,
-    });
-  });
+
 
   const verifyOtp = catchAsync(async (req, res) => {
     const result = await userServices.verifyOtp(req.body);
@@ -48,6 +39,6 @@ const createAdmin= catchAsync(async (req, res) => {
   export const userController={
     createUser,
     verifyOtp,
-    createAdmin,
+ 
     updateUserProfile
   }

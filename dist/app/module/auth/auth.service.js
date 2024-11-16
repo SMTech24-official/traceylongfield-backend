@@ -44,7 +44,6 @@ const auth_utils_1 = require("./auth.utils");
 const config_1 = __importDefault(require("../../config"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const argon2 = __importStar(require("argon2"));
-const sendEmail_1 = require("../../utils/sendEmail");
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
     const user = yield user_model_1.User.findOne({ email: payload.email });
@@ -52,9 +51,9 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user === null || user === void 0 ? void 0 : user.isActive;
-    if (!isDeleted) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not active!');
+    const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
+    if (!isVerified) {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not verified!');
     }
     //checking if the password is correct
     if (!(yield argon2.verify(user.password, payload.password))) {
@@ -75,14 +74,14 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
-    const user = yield user_model_1.User.findOne({ email: userData.email });
+    const user = yield user_model_1.User.findOne({ _id: userData.userId });
     if (!user) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user === null || user === void 0 ? void 0 : user.isActive;
-    if (!isDeleted) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not active!');
+    const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
+    if (!isVerified) {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not verified!');
     }
     //checking if the password is correct
     if (!(yield (0, matchPassword_1.matchPassword)(payload.oldPassword, user === null || user === void 0 ? void 0 : user.password)))
@@ -107,8 +106,8 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user === null || user === void 0 ? void 0 : user.isActive;
-    if (!isDeleted) {
+    const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
+    if (!isVerified) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not active!');
     }
     const jwtPayload = {
@@ -128,8 +127,8 @@ const forgetPassword = (email) => __awaiter(void 0, void 0, void 0, function* ()
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user === null || user === void 0 ? void 0 : user.isActive;
-    if (!isDeleted) {
+    const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
+    if (!isVerified) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not active !');
     }
     const jwtPayload = {
@@ -139,7 +138,7 @@ const forgetPassword = (email) => __awaiter(void 0, void 0, void 0, function* ()
     };
     const resetToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, '10m');
     const resetUILink = `${config_1.default.activeLink}?id=${user.id}&token=${resetToken} `;
-    (0, sendEmail_1.sendEmail)(user.email, resetUILink);
+    //   sendEmail(user.email, resetUILink);
 });
 const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
@@ -148,8 +147,8 @@ const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, func
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
     }
     // checking if the user is already deleted
-    const isDeleted = user === null || user === void 0 ? void 0 : user.isActive;
-    if (!isDeleted) {
+    const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
+    if (!isVerified) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not activate!');
     }
     const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);

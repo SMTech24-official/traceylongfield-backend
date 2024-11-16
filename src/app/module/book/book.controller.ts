@@ -32,8 +32,9 @@ const insertBookIntoDB = catchAsync(async (req, res) => {
   const getAllBooks = catchAsync(async (req, res) => {
     const page =Number(req.query.page)|| 1;
     const limit = Number(req.query.limit) || 10;
+    const genre=req.query.genre as string
     const user=req.user
-    const result = await bookService.getAllBooks(page, limit,user)
+    const result = await bookService.getAllBooks(page, limit,user,genre)
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -42,9 +43,12 @@ const insertBookIntoDB = catchAsync(async (req, res) => {
     });
    
   });
+  // start reading
+
 
   export const bookController = {
     insertBookIntoDB,
     getAllMyBooks,
-    getAllBooks
+    getAllBooks,
+  
   };

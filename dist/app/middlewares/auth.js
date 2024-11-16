@@ -34,9 +34,9 @@ const auth = (...requiredRoles) => {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
         }
         // checking if the user is already deleted
-        const isDeleted = user === null || user === void 0 ? void 0 : user.isActive;
+        const isDeleted = user === null || user === void 0 ? void 0 : user.isVerified;
         if (!isDeleted) {
-            throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not active !');
+            throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not verified !');
         }
         if (requiredRoles && !requiredRoles.includes(role)) {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized  hi!');

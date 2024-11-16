@@ -18,10 +18,7 @@ const insertBookIntoDB=async(req:Request)=>{
       }
 
 
-      const bookReader = files.bookReader.map((file: any) => ({
-        fileName: file?.filename,
-        url: `${config.back_end_base_url}/uploads/${file?.originalname}`,
-      }));
+
       const bookCover = files.bookCover.map((file: any) => ({
         fileName: file?.filename,
         url: `${config.back_end_base_url}/uploads/${file?.originalname}`,
@@ -43,7 +40,6 @@ const insertBookIntoDB=async(req:Request)=>{
       const payload = {
         ...bookData,
         userId:user.userId,
-        bookReader: bookReader[0].url,
         status:"pending",
         bookCover: bookCover[0].url,
         bookPdf: bookPdf[0].url,
@@ -62,7 +58,7 @@ const getAllMyBooks = async (page: number, limit: number, status: string,user:Jw
     try {
       const query: any = {userId:user.userId};
       if (status) {
-        query.status = status; // Ensure proper assignment to query
+        query.status =  { $regex: new RegExp(`^${status}$`, 'i') };; // Ensure proper assignment to query
       }
   
       const books = await Book.find(query)
@@ -80,10 +76,13 @@ const getAllMyBooks = async (page: number, limit: number, status: string,user:Jw
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "An error occurred");
     }
   };
-const getAllBooks = async (page: number, limit: number, user:JwtPayload) => {
+const getAllBooks = async (page: number, limit: number, user:JwtPayload,genre:string) => {
     try {
         const query: any = { userId: { $ne: user.userId },status:"live" };
-     
+        if (genre) {
+          query.genre = { $regex: new RegExp(`^${genre}$`, 'i') }; // Case-insensitive exact match
+        }
+        
   
       const books = await Book.find(query)
         .populate('userId') // Assuming 'userId' is the field in your schema
@@ -100,8 +99,9 @@ const getAllBooks = async (page: number, limit: number, user:JwtPayload) => {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "An error occurred");
     }
   };
+
 export const bookService = {
     insertBookIntoDB,
     getAllMyBooks,
-    getAllBooks
+    getAllBooks,
 }

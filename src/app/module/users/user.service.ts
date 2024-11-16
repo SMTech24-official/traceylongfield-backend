@@ -66,31 +66,7 @@ if(!result){
   return rest
 
 }
-const createAdmin = async (payload: IUser) => {
-  payload.password = await argon2.hash(payload.password);
-  payload.role = "admin"
-  const result = await User.create(payload)
-  if (result) {
-    const resetUILink = `${config.activeLink}?id=${result._id}`
-    // const resetUILink = `<button onclick=()=>(console.l)>Active account</button>`
-    // sendEmail(payload.email, `
-    //   <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-    //       <p>Dear</p>
-    //       <p>You Need to active your Account:</p>
-    //       <a href="${resetUILink}" style="text-decoration: none;">
-    //         <button style="background-color: #007BFF; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-    //           active account
-    //         </button>
-    //       </a>
-    //       <p>Thank you,<br>Dream 2 Drive</p>
-    //       </div>
 
-    //   `);
-  }
-  const { password, ...rest } = result.toObject()
-  return rest
-
-}
 
 const verifyOtp = async (payload: { email: string; otp: string }) => {
   // checking if the user is exist
@@ -153,6 +129,6 @@ return result
 export const userServices = {
   createUser,
   verifyOtp,
-  createAdmin,
+
   updateUserProfile
 };

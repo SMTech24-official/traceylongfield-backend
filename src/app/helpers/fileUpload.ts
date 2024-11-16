@@ -16,7 +16,6 @@ const uploadSingle = upload.single("image");
 
 // upload multiple image
 const uploadMultiple = upload.fields([
-  { name: "bookReader", maxCount: 1 },
   { name: "bookCover", maxCount: 1 },
   { name: "bookPdf", maxCount: 1 },
 ]);

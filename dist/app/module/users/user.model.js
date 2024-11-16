@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.User = void 0;
 const mongoose_1 = require("mongoose");
 // Define the schema for the User model
 const userSchema = new mongoose_1.Schema({
     fullName: { type: String, required: true },
     reviewerName: { type: String, required: true },
     amazonCountry: { type: String, required: true },
-    amazonAuthorPageLink: { type: String, required: true },
+    amazonAuthorPageLink: { type: String, },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: {
@@ -15,7 +16,9 @@ const userSchema = new mongoose_1.Schema({
         required: true
     },
     points: { type: Number, default: 0 },
-    profileImage: { type: String, required: true },
+    profileImage: { type: String },
+    otp: { type: Number },
+    otpExpires: { type: Date },
     isVerified: { type: Boolean, default: false },
     isSubscribed: { type: Boolean, default: false },
     subscriptionPlane: { type: String, default: '' },
@@ -25,5 +28,4 @@ const userSchema = new mongoose_1.Schema({
     termsAccepted: { type: Boolean, default: false }
 });
 // Create the User model using the schema
-const UserModel = (0, mongoose_1.model)('User', userSchema);
-exports.default = UserModel;
+exports.User = (0, mongoose_1.model)('User', userSchema);

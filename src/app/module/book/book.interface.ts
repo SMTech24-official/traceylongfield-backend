@@ -8,11 +8,11 @@ export interface IAddBook{
     amazonBookUrl: string;
     bookReader:string;
     bookCover:string;
-    bookPdf:string;
+    bookPdf?:string;
     genre:string;
     status:"pending"|"live",
     bookType:string;
-    wordCount:number;
+   // wordCount:number;
     createdAt: Date;
     updatedAt: Date;
 
