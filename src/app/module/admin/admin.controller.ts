@@ -34,8 +34,34 @@ const getSingleBook = catchAsync(async (req, res) => {
       data: result,
     });
   });
+  //approved book 
+  const approveBook = catchAsync(async (req, res) => {
+    const id =req.params.id;
+    const result = await adminServices.approveBook(id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "book approved successfully!",
+      data: result,
+    });
+  });
+  //reject book
+  const rejectBook = catchAsync(async (req, res) => {
+    const id =req.params.id;
+    const reason=req.body.reason
+    const result = await adminServices.rejectBook(id,reason);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "book rejected successfully!",
+      data: result,
+    });
+  });
+  
   export const adminController={
     getAllPendingBook,
     createAdmin,
-    getSingleBook
+    getSingleBook,
+    approveBook,
+    rejectBook
   }
