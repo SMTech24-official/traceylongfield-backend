@@ -8,6 +8,8 @@ import { Notification } from "../activity/activity.model";
 import { startSession } from "mongoose";
 import { ReadingBook } from "../reading/reading.model";
 import { Point } from "../points/points.model";
+import { IAddBook } from "../book/book.interface";
+import { ObjectId } from 'mongoose';
 
 const createAdmin = async (payload: IUser) => {
   payload.password = await argon2.hash(payload.password);
@@ -243,6 +245,53 @@ try {
 
 }
 
+// get all users
+const getAllUsers = async () => {
+  const users = await User.find().select('-password -otp -otpExpires');
+  return users;
+};
+// get single user
+
+const getSingleUser = async (id: string) => {
+  const user = await User.findById(id).select("-password -otp -otpExpires");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return user;
+};
+// get all book based users with query parameters
+const getAllBookBasedUsers = async (query: any,id:string) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const skip = (page - 1) * limit;
+console.log(
+  id
+)
+const baseQuery: Partial<IAddBook> = {
+
+};
+
+if(query.status){
+  baseQuery.status=query.status
+}
+console.log(baseQuery)
+  const result = await Book.find({userId:id,...baseQuery})
+   .skip(skip)
+   .limit(limit)
+   //.populate("userId", "-password")
+   
+
+  return result;
+};
+// get single book
+
+// const getSingleBook = async (id: string) => {
+//   const book = await Book.findById(id);
+//   if (!book) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Book not found");
+//   }
+//   return book;
+// };
 export const adminServices = {
   getAllPendingBook,
   createAdmin,
@@ -252,5 +301,8 @@ export const adminServices = {
   getAllReview,
   getSingleReview,
   approvedReview,
-  rejectReview
+  rejectReview,
+  getAllUsers,
+  getSingleUser,
+  getAllBookBasedUsers
 };

@@ -19,9 +19,15 @@ const uploadMultiple = upload.fields([
   { name: "bookCover", maxCount: 1 },
   { name: "bookPdf", maxCount: 1 },
 ]);
+// upload multiple image
+const uploadGuide = upload.fields([
+  { name: "cover", maxCount: 1 },
+  { name: "pdfFile", maxCount: 1 },
+]);
 
 export const fileUploader = {
   upload,
   uploadSingle,
   uploadMultiple,
+  uploadGuide
 };

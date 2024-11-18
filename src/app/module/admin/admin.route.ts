@@ -7,7 +7,7 @@ const router=Router();
 
 router.post("/make-admin",auth(USER_ROLE.admin),adminController.createAdmin)
 router.get("/",auth(USER_ROLE.admin), adminController.getAllPendingBook)
-router.get("/:id",auth(USER_ROLE.admin), adminController.getSingleBook)
+router.get("/book/:id",auth(USER_ROLE.admin), adminController.getSingleBook)
   //approved book 
   router.put("/approve/:id",auth(USER_ROLE.admin), adminController.approveBook)
   //rejected book
@@ -20,6 +20,10 @@ router.get("/:id",auth(USER_ROLE.admin), adminController.getSingleBook)
  router.put("/review/approve/:id",auth(USER_ROLE.admin), adminController.approvedReview)
   // rejected review
   router.delete("/review/rejected/:id",auth(USER_ROLE.admin), adminController.rejectReview)
-
-
+// get all users
+ router.get("/users/get-all",auth(USER_ROLE.admin), adminController.getAllUsers)
+  // get single user
+  router.get("/single-user/:id",auth(USER_ROLE.admin), adminController.getSingleUser)
+  // get all book based users with query parameters
+  router.get("/books/get-all/:id",auth(USER_ROLE.admin), adminController.getAllBookBasedUsers) 
 export const AdminRouters=router

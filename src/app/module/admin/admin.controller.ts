@@ -102,7 +102,42 @@ const getSingleBook = catchAsync(async (req, res) => {
     });
   });
 
- // get single borrowed book
+ // get all users
+  const getAllUsers = catchAsync(async (req, res) => {
+    console.log("getAllUsers")
+    const result = await adminServices.getAllUsers();
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get all users successfully!",
+      data: result,
+    });
+  });
+  // get single user
+  const getSingleUser = catchAsync(async (req, res) => {
+    const id =req.params.id;
+    const result = await adminServices.getSingleUser(id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get single user successfully!",
+      data: result,
+    });
+  });
+
+// get all book based users with query parameters
+  const getAllBookBasedUsers = catchAsync(async (req, res) => {
+    const query = req.query;
+    const id =req.params.id;
+  
+    const result = await adminServices.getAllBookBasedUsers(query,id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get all book based users successfully!",
+      data: result,
+    });
+  });
   export const adminController={
     getAllPendingBook,
     createAdmin,
@@ -112,5 +147,8 @@ const getSingleBook = catchAsync(async (req, res) => {
     getAllReview,
     getSingleReview,
     approvedReview,
-    rejectReview
+    rejectReview,
+    getAllUsers,
+    getSingleUser,
+    getAllBookBasedUsers
   }
