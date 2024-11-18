@@ -11,6 +11,8 @@ const ReadingBookSchema = new Schema<IReadingBook>(
         enum: ["reading", "finished", "paused"],
         required: true,
       },
+  isApproved:{ type: Boolean ,default: false}
+
     },
     { timestamps: true } // Automatically add createdAt and updatedAt fields
   );

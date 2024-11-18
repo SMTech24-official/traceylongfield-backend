@@ -57,11 +57,60 @@ const getSingleBook = catchAsync(async (req, res) => {
       data: result,
     });
   });
-  
+  // get all review 
+  const getAllReview = catchAsync(async (req, res) => {
+    const result = await adminServices.getAllReview();
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get all review successfully!",
+      data: result,
+    });
+  });
+  // get single review 
+  const getSingleReview = catchAsync(async (req, res) => {
+    const id =req.params.id;
+    const result = await adminServices.getSingleReview(id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get single review successfully!",
+      data: result,
+    });
+  });
+  //approved review
+  const approvedReview = catchAsync(async (req, res) => {
+    const id =req.params.id;
+    const result = await adminServices.approvedReview(id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "update review successfully!",
+      data: result,
+    });
+  });
+ //reject review
+  const rejectReview = catchAsync(async (req, res) => {
+    const id =req.params.id;
+    const reason=req.body.reason;
+    const result = await adminServices.rejectReview(id,reason);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "review rejected successfully!",
+      data: result,
+    });
+  });
+
+ // get single borrowed book
   export const adminController={
     getAllPendingBook,
     createAdmin,
     getSingleBook,
     approveBook,
-    rejectBook
+    rejectBook,
+    getAllReview,
+    getSingleReview,
+    approvedReview,
+    rejectReview
   }

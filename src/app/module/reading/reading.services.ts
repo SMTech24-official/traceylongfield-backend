@@ -7,6 +7,13 @@ import { Book } from "../book/book.model";
 import { User } from "../users/user.model";
 
 const startReading = async (bookId: string, user: JwtPayload) => {
+  const IsBook=await Book.findById(bookId);
+  if (!IsBook) {
+    throw new AppError(httpStatus.NOT_FOUND, "Book not found");
+  }
+  if(IsBook.status !=="live"){
+    throw new AppError(httpStatus.FORBIDDEN, "This book is not live");
+  }
   const existingReadingBook = await ReadingBook.findOne({
     bookId,
     userId: user.userId,
@@ -45,13 +52,12 @@ const finishReading = async (readingBookId: string, user: JwtPayload) => {
   if (!ExistUser) {
     throw new AppError(httpStatus.FORBIDDEN, "User not found");
   }
+ 
   const readingBook = await ReadingBook.findOneAndUpdate(
-    { userId: user.userId, _id: readingBookId },  // Filter condition
+    {_id:readingBookId},  // Filter condition
     { readingStatus: "paused" },                      // Update action
     { new: true }                                     // Option to return the updated document
   );
-  console.log(readingBook)
-
   if (!readingBook) {
     throw new AppError(httpStatus.NOT_FOUND, "Reading book not found");
   }
