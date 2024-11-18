@@ -11,6 +11,7 @@ const ReadingBookSchema = new mongoose_1.Schema({
         enum: ["reading", "finished", "paused"],
         required: true,
     },
+    isApproved: { type: Boolean, default: false }
 }, { timestamps: true } // Automatically add createdAt and updatedAt fields
 );
 // Create and export the model

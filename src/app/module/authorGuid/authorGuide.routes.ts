@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { authorGuideController } from "./authorguide.controller";
+
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../../utils/constant";
 import { fileUploader } from "../../helpers/fileUpload";
+import { authorGuideController } from "./authorGuide.controller";
 
 const router=Router();
 

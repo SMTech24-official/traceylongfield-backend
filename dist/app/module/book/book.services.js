@@ -17,11 +17,11 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const config_1 = __importDefault(require("../../config"));
 const book_model_1 = require("./book.model");
+const activity_model_1 = require("../activity/activity.model");
 const insertBookIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const files = req.files;
-    console.log(files.bookReader);
-    if (!files || !files.bookReader || !files.bookCover || !files.bookPdf) {
+    if (!files || !files.bookCover || !files.bookPdf) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "File is required for  add book");
     }
     const bookCover = files.bookCover.map((file) => ({
@@ -46,6 +46,9 @@ const insertBookIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* ()
     const result = yield book_model_1.Book.create(payload);
     if (!result) {
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Failed to insert book into DB");
+    }
+    if (result) {
+        yield activity_model_1.Notification.create({ user: user.userId, message: `your book ${bookData.title} has been submitted for approval` });
     }
     return result;
 });

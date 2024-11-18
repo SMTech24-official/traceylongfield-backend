@@ -19,6 +19,13 @@ const http_status_1 = __importDefault(require("http-status"));
 const book_model_1 = require("../book/book.model");
 const user_model_1 = require("../users/user.model");
 const startReading = (bookId, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const IsBook = yield book_model_1.Book.findById(bookId);
+    if (!IsBook) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Book not found");
+    }
+    if (IsBook.status !== "live") {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This book is not live");
+    }
     const existingReadingBook = yield reading_model_1.ReadingBook.findOne({
         bookId,
         userId: user.userId,
@@ -49,11 +56,10 @@ const finishReading = (readingBookId, user) => __awaiter(void 0, void 0, void 0,
     if (!ExistUser) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, "User not found");
     }
-    const readingBook = yield reading_model_1.ReadingBook.findOneAndUpdate({ userId: user.userId, _id: readingBookId }, // Filter condition
+    const readingBook = yield reading_model_1.ReadingBook.findOneAndUpdate({ _id: readingBookId }, // Filter condition
     { readingStatus: "paused" }, // Update action
     { new: true } // Option to return the updated document
     );
-    console.log(readingBook);
     if (!readingBook) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Reading book not found");
     }
@@ -103,10 +109,16 @@ const getCompleteReview = (user) => __awaiter(void 0, void 0, void 0, function* 
     const readingBook = yield reading_model_1.ReadingBook.find({
         userId: user.userId,
         readingStatus: "finished",
-    });
+    }).populate({ path: "bookId" }).populate({ path: "userId", select: "-password" });
     if (!readingBook) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No reading book found");
     }
+    return readingBook;
+});
+const getSingleReview = (user, reviewId) => __awaiter(void 0, void 0, void 0, function* () {
+    const readingBook = yield reading_model_1.ReadingBook.findOne({
+        _id: reviewId,
+    }).populate({ path: "bookId" }).populate({ path: "userId", select: "-password" });
     return readingBook;
 });
 exports.readingService = {
@@ -115,5 +127,6 @@ exports.readingService = {
     getToReviewedBook,
     getToReviewOverDueBook,
     completeReview,
-    getCompleteReview
+    getCompleteReview,
+    getSingleReview
 };

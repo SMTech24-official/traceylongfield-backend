@@ -83,6 +83,17 @@ const getCompleteReview = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
+const getSingleReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const reviewId = req.params.id;
+    const user = req.user;
+    const result = yield reading_services_1.readingService.getSingleReview(user, reviewId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "get reviewed over due book successfully!",
+        data: result,
+    });
+}));
 exports.readingController = {
     startReading,
     finishReading,
@@ -90,4 +101,5 @@ exports.readingController = {
     getToReviewOverDueBook,
     completeReview,
     getCompleteReview,
+    getSingleReview
 };

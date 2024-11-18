@@ -8,7 +8,7 @@ const BookSchema = new mongoose_1.Schema({
     authorName: { type: String, required: true },
     userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     amazonBookUrl: { type: String, required: true }, // Optional field
-    bookReader: { type: String, required: true },
+    bookFormate: { type: String, required: true },
     bookCover: { type: String, required: true },
     bookPdf: { type: String },
     status: { type: String, enum: ["pending", "live"] },

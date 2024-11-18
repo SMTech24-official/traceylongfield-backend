@@ -6,7 +6,7 @@ import { ReadingRouter } from "../module/reading/reading.routes";
 import { AdminRouters } from "../module/admin/admin.route";
 import { PointRouter } from "../module/points/points.routes";
 import { KnowledgeHubRouter } from "../module/knowledgeHub/knowledgeHub.routes";
-import { AuthorGuide } from "../module/authoGuid/authorGuide.routes";
+import { AuthorGuide } from "../module/authorGuid/authorGuide.routes";
 
 
 

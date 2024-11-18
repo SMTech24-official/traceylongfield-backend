@@ -6,6 +6,9 @@ const auth_route_1 = require("../module/auth/auth.route");
 const book_route_1 = require("../module/book/book.route");
 const reading_routes_1 = require("../module/reading/reading.routes");
 const admin_route_1 = require("../module/admin/admin.route");
+const points_routes_1 = require("../module/points/points.routes");
+const knowledgeHub_routes_1 = require("../module/knowledgeHub/knowledgeHub.routes");
+const authorGuide_routes_1 = require("../module/authorGuid/authorGuide.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     { path: '/users',
@@ -23,6 +26,18 @@ const moduleRoutes = [
     { path: '/admin',
         route: admin_route_1.AdminRouters
     },
+    {
+        path: '/point',
+        route: points_routes_1.PointRouter
+    },
+    {
+        path: '/knowledgeHub',
+        route: knowledgeHub_routes_1.KnowledgeHubRouter
+    },
+    {
+        path: '/authorGuide',
+        route: authorGuide_routes_1.AuthorGuide
+    }
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 exports.default = router;
