@@ -13,7 +13,7 @@ export interface IUser {
     profileImage?: string;
     isVerified:boolean;
     isSubscribed?:boolean;
-    stripeCustomerId:string;
+    stripeCustomerId?:string;
     subscriptionPlane?:string;
     invitedFriends?: number;
     createdAt: Date;

@@ -4,7 +4,8 @@ import sendResponse from "../../utils/sendResponse";
 import { userServices } from "./user.service";
 
 const createUser= catchAsync(async (req, res) => {
- const result=await userServices.createUser(req.body) 
+  const query= req.query
+ const result=await userServices.createUser(req.body,query) 
   
     sendResponse(res, {
       statusCode: httpStatus.OK,

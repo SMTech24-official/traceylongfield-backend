@@ -1,3 +1,4 @@
+import { verifyToken } from './../auth/auth.utils';
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { IUser } from "./user.interface";
@@ -8,7 +9,7 @@ import config from "../../config";
 import { User } from "./user.model";
 import { Request } from "express";
 
-const createUser = async (payload: IUser) => {
+const createUser = async (payload: IUser,query:any) => {
   payload.password = await argon2.hash(payload.password);
     // Generate a 6-digit OTP
     const otp = crypto.randomInt(1000, 9999).toString();
@@ -18,13 +19,31 @@ const createUser = async (payload: IUser) => {
     payload.otp=otp
     payload.otpExpires=otpExpires
     payload.role = "author"
+    
   const result = await User.create(payload)
 if(!result){
   throw new AppError (httpStatus.NOT_ACCEPTABLE,"User create failed")
 }
 
 
+if (query.token){
+  const token=query.token
+  const data= verifyToken(token,config.jwt_access_secret as string)
   
+  const existingUser= await User.findOne({_id:data.userId})
+  if(!existingUser){
+    throw new AppError(httpStatus.FORBIDDEN,"refer user not found")
+  }
+ 
+  
+ const updateDoc={
+   invitedFriends:existingUser.invitedFriends!+1,
+   points:existingUser.points!+50
+ }
+  await User.findByIdAndUpdate({_id:existingUser._id},updateDoc,{runValidators:true})
+  await User.findByIdAndUpdate({_id:result._id},{points:50},{runValidators:true})
+}
+
 
   const html = `
 <div style="font-family: Arial, sans-serif; color: #333; padding: 30px; background: linear-gradient(135deg, #6c63ff, #3f51b5); border-radius: 8px;">
