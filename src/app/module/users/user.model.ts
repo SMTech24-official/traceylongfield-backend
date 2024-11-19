@@ -17,6 +17,7 @@ const userSchema: Schema = new Schema<IUser>({
     points: { type: Number, default: 0 },
     profileImage: { type: String},
     otp: { type: Number},
+    stripeCustomerId:{ type: String, required: true},
     otpExpires: {type:Date},
     isVerified: { type: Boolean, default: false },
     isSubscribed: { type: Boolean, default: false },    

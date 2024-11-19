@@ -7,6 +7,8 @@ import { AdminRouters } from "../module/admin/admin.route";
 import { PointRouter } from "../module/points/points.routes";
 import { KnowledgeHubRouter } from "../module/knowledgeHub/knowledgeHub.routes";
 import { AuthorGuide } from "../module/authorGuid/authorGuide.routes";
+import { PaymentRoutes } from "../module/payment/payment.routes";
+import { inviteRouter } from "../module/invite/invite.routes";
 
 
 
@@ -39,6 +41,14 @@ const moduleRoutes=[
     {
         path: '/authorGuide',
         route: AuthorGuide
+    },
+    {
+        path: '/payment',
+        route: PaymentRoutes
+    },
+    {
+        path: '/invite',
+        route: inviteRouter
     }
  
 ]
