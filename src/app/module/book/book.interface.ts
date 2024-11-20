@@ -11,6 +11,7 @@ export interface IAddBook{
     bookPdf?:string;
     genre:string;
     status:"pending"|"live",
+    isReadyForReview:boolean;
     bookType:string;
    // wordCount:number;
     createdAt: Date;

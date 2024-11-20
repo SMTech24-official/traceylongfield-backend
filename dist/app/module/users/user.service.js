@@ -47,6 +47,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userServices = void 0;
+const auth_utils_1 = require("./../auth/auth.utils");
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const crypto_1 = __importDefault(require("crypto"));
@@ -54,7 +55,7 @@ const argon2 = __importStar(require("argon2"));
 const sendEmail_1 = require("../../utils/sendEmail");
 const config_1 = __importDefault(require("../../config"));
 const user_model_1 = require("./user.model");
-const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = (payload, query) => __awaiter(void 0, void 0, void 0, function* () {
     payload.password = yield argon2.hash(payload.password);
     // Generate a 6-digit OTP
     const otp = crypto_1.default.randomInt(1000, 9999).toString();
@@ -66,6 +67,20 @@ const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_model_1.User.create(payload);
     if (!result) {
         throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, "User create failed");
+    }
+    if (query.token) {
+        const token = query.token;
+        const data = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_access_secret);
+        const existingUser = yield user_model_1.User.findOne({ _id: data.userId });
+        if (!existingUser) {
+            throw new AppError_1.default(http_status_1.default.FORBIDDEN, "refer user not found");
+        }
+        const updateDoc = {
+            invitedFriends: existingUser.invitedFriends + 1,
+            points: existingUser.points + 50
+        };
+        yield user_model_1.User.findByIdAndUpdate({ _id: existingUser._id }, updateDoc, { runValidators: true });
+        yield user_model_1.User.findByIdAndUpdate({ _id: result._id }, { points: 50 }, { runValidators: true });
     }
     const html = `
 <div style="font-family: Arial, sans-serif; color: #333; padding: 30px; background: linear-gradient(135deg, #6c63ff, #3f51b5); border-radius: 8px;">

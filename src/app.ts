@@ -12,7 +12,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({origin: ['https://celebrated-kitten-1b6ccf.netlify.app',"https://celebrated-kitten-1b6ccf.netlify.app"], credentials: true }));
+app.use(cors({origin: ['https://celebrated-kitten-1b6ccf.netlify.app',"http://localhost:3000"], credentials: true }));
 
 // application routes
 app.use('/api', router);

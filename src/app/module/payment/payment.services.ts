@@ -5,7 +5,8 @@ import { Payment, PaymentInformation } from "./payment.model";
 import { plans } from "./payment.constant";
 import { CreatePaymentInput } from "./payment.interface";
 import AppError from "../../errors/AppError";
-import httpStatus from "http-status";
+import httpStatus, { VARIANT_ALSO_NEGOTIATES } from "http-status";
+import { Request, Response } from "express";
 
 const stripe = new Stripe(config.stripe_secret_key as string);
 
@@ -118,6 +119,7 @@ const createSubscription = async (paymentData: CreatePaymentInput) => {
   return paymentIntent;
 };
 
+
 const cancelSubscription = async (
   subscriptionId: string
 ): Promise<Stripe.Subscription | null> => {
@@ -146,6 +148,70 @@ const cancelSubscription = async (
     throw new Error(
       `Failed to cancel the subscription with ID: ${subscriptionId}`
     );
+  }
+};
+
+const updateSubscriptionPlan = async (data: {
+  userEmail: string;
+  newPlanType: string;
+}): Promise<Stripe.Subscription> => {
+  try {
+    const { userEmail, newPlanType } = data;
+    // Define the plans
+    const newPlan = plans[newPlanType as keyof typeof plans];
+    if (!newPlan) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Invalid plan type.");
+    }
+
+    // Fetch the user from the database
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+    }
+
+    // Check if the user has an active subscription
+    const existingPayment = await Payment.findOne({
+      userEmail,
+      paymentStatus: "ACTIVE",
+    });
+    if (!existingPayment) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "No active subscription found for the user."
+      );
+    }
+
+    // Update the subscription in Stripe
+    const updatedSubscription = await stripe.subscriptions.update(
+      existingPayment.paymentIntentId!, // Stripe subscription ID
+      {
+        items: [
+          {
+            id: existingPayment.paymentIntentId, // The subscription item ID
+            price: newPlan.priceId, // The new plan's price ID
+          },
+        ],
+        proration_behavior: "create_prorations", // Adjusts billing for the change
+      }
+    );
+
+    // Update the database with the new plan details
+    await Payment.updateOne(
+      { userEmail, paymentIntentId: existingPayment.paymentIntentId },
+      {
+        planType: newPlanType,
+        planDuration: newPlan.duration,
+        amount: newPlan.price,
+        currentPeriodEnd: new Date(
+          updatedSubscription.current_period_end * 1000
+        ),
+      }
+    );
+
+    return updatedSubscription;
+  } catch (error: any) {
+    console.error("Error updating subscription plan:", error);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
@@ -182,7 +248,7 @@ const getAllPaymentDataIntoDB = async () => {
   try {
     // Use Mongoose to fetch all payments from the Payment collection
     const result = await Payment.find();
-  
+
     return result;
   } catch (error) {
     console.error("Error fetching all payment data:", error);
@@ -191,20 +257,17 @@ const getAllPaymentDataIntoDB = async () => {
 };
 // Delete payment data from the database by ID
 const deletePaymentDataFromDB = async (id: string) => {
-
-    // Use Mongoose to delete a payment by ID from the Payment collection
-    const result = await Payment.findByIdAndDelete(id);
-    if (!result) {
-      throw new AppError(httpStatus.NOT_FOUND,"Payment not found.");
-    }
-    return result;
-
-  
-  
+  // Use Mongoose to delete a payment by ID from the Payment collection
+  const result = await Payment.findByIdAndDelete(id);
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "Payment not found.");
+  }
+  return result;
 };
 export const paymentService = {
   createSubscription,
   cancelSubscription,
   getAllPaymentDataIntoDB,
   deletePaymentDataFromDB,
+  updateSubscriptionPlan,
 };

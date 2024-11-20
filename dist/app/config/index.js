@@ -16,5 +16,7 @@ exports.default = {
     jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
     mail: process.env.MAIL,
     mail_pass: process.env.MAIL_PASS,
-    back_end_base_url: process.env.BACK_END_BASE_URL
+    back_end_base_url: process.env.BACK_END_BASE_URL,
+    stripe_secret_key: process.env.STRIPE_SECRET_KEY,
+    front_end_base_url: process.env.FRONT_END_BASE_URL
 };

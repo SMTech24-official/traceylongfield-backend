@@ -43,6 +43,18 @@ const insertBookIntoDB = catchAsync(async (req, res) => {
     });
    
   });
+// get all book with pagination and query by status
+  const getReviewedBooks = catchAsync(async (req, res) => {
+const id=req.params.id
+    const result = await bookService.getReviewedBooks(id)
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get for reviewed books successfully!",
+      data: result,
+    });
+   
+  });
   // start reading
 
 
@@ -50,5 +62,6 @@ const insertBookIntoDB = catchAsync(async (req, res) => {
     insertBookIntoDB,
     getAllMyBooks,
     getAllBooks,
+    getReviewedBooks
   
   };

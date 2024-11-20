@@ -76,7 +76,7 @@ const getAllMyBooks = (page, limit, status, user) => __awaiter(void 0, void 0, v
 });
 const getAllBooks = (page, limit, user, genre) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const query = { userId: { $ne: user.userId }, status: "live" };
+        const query = { userId: { $ne: user.userId }, status: "live", isReadyForReview: true };
         if (genre) {
             query.genre = { $regex: new RegExp(`^${genre}$`, 'i') }; // Case-insensitive exact match
         }
@@ -94,8 +94,24 @@ const getAllBooks = (page, limit, user, genre) => __awaiter(void 0, void 0, void
         throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, error.message || "An error occurred");
     }
 });
+//get for reviewed 
+const getReviewedBooks = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const book = yield book_model_1.Book.findById(id);
+    if (!book) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Book not found");
+    }
+    if (book.status !== "live") {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This book is not approved");
+    }
+    const result = yield book_model_1.Book.findByIdAndUpdate(id, { isReadyForReview: true }, { new: true });
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Failed to update book status");
+    }
+    return result;
+});
 exports.bookService = {
     insertBookIntoDB,
     getAllMyBooks,
     getAllBooks,
+    getReviewedBooks
 };

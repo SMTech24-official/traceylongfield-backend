@@ -9,6 +9,8 @@ const admin_route_1 = require("../module/admin/admin.route");
 const points_routes_1 = require("../module/points/points.routes");
 const knowledgeHub_routes_1 = require("../module/knowledgeHub/knowledgeHub.routes");
 const authorGuide_routes_1 = require("../module/authorGuid/authorGuide.routes");
+const payment_routes_1 = require("../module/payment/payment.routes");
+const invite_routes_1 = require("../module/invite/invite.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     { path: '/users',
@@ -37,6 +39,14 @@ const moduleRoutes = [
     {
         path: '/authorGuide',
         route: authorGuide_routes_1.AuthorGuide
+    },
+    {
+        path: '/payment',
+        route: payment_routes_1.PaymentRoutes
+    },
+    {
+        path: '/invite',
+        route: invite_routes_1.inviteRouter
     }
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

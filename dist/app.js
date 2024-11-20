@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -9,16 +18,26 @@ const express_1 = __importDefault(require("express"));
 const globalErrorhandler_1 = __importDefault(require("./app/middlewares/globalErrorhandler"));
 const notFound_1 = __importDefault(require("./app/middlewares/notFound"));
 const routes_1 = __importDefault(require("./app/routes"));
+const node_cron_1 = __importDefault(require("node-cron"));
+const payment_services_1 = require("./app/module/payment/payment.services");
 const app = (0, express_1.default)();
 //parsers
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({ origin: ['https://celebrated-kitten-1b6ccf.netlify.app', "https://celebrated-kitten-1b6ccf.netlify.app"], credentials: true }));
+app.use((0, cors_1.default)({ origin: ['https://celebrated-kitten-1b6ccf.netlify.app', "http://localhost:3000"], credentials: true }));
 // application routes
 app.use('/api', routes_1.default);
 app.get('/', (req, res) => {
     res.send('Hi Developer !');
 });
+node_cron_1.default.schedule("0 0 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, payment_services_1.checkExpiredSubscriptions)();
+    }
+    catch (error) {
+        console.error("Error checking expired subscriptions:", error);
+    }
+}));
 app.use(globalErrorhandler_1.default);
 //Not Found
 app.use(notFound_1.default);

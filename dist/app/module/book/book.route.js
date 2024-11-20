@@ -13,4 +13,5 @@ const router = express_1.default.Router();
 router.post("/add-book", (0, auth_1.default)(constant_1.USER_ROLE.author), fileUpload_1.fileUploader.uploadMultiple, book_controller_1.bookController.insertBookIntoDB);
 router.get("/", (0, auth_1.default)(constant_1.USER_ROLE.author), book_controller_1.bookController.getAllMyBooks);
 router.get("/library", (0, auth_1.default)(constant_1.USER_ROLE.author), book_controller_1.bookController.getAllBooks);
+router.put("/get-reviewed/:id", (0, auth_1.default)(constant_1.USER_ROLE.author), book_controller_1.bookController.getReviewedBooks);
 exports.bookRoutes = router;

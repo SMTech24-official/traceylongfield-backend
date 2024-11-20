@@ -5,7 +5,23 @@ import { paymentService } from "./payment.services";
 
 // Create a subscription
 const createSubscription = catchAsync(async (req, res) => {
-    const result = await paymentService.createSubscription(req.body);
+    const {plan}=req.query 
+    const data=req.body
+    const result = await paymentService.createSubscription(data );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Subscription created successfully",
+      data: result,
+    });
+  });
+// Create a subscription
+const updateSubscriptionPlan = catchAsync(async (req, res) => {
+    const {plan}=req.query 
+    const data=req.body
+    const result = await paymentService.updateSubscriptionPlan(data );
+
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -15,12 +31,14 @@ const createSubscription = catchAsync(async (req, res) => {
   });
 
 
+
   
 // Cancel a subscription
 const cancelSubscription = catchAsync(async (req ,res) => {
     const { subscriptionId } = req.body;
   
-    const result = await paymentService.cancelSubscription(subscriptionId);
+    const {plan}=req.query 
+    const result = await paymentService.cancelSubscription(subscriptionId );
   
     if (!result) {
       sendResponse(res, {
@@ -78,5 +96,7 @@ const getAllPayments = catchAsync(async (req, res) => {
     createSubscription,
     cancelSubscription,
     deletePayment,
-    getAllPayments
+    getAllPayments,
+    updateSubscriptionPlan
+   
   }

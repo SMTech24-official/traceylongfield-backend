@@ -82,7 +82,7 @@ const getAllMyBooks = async (page: number, limit: number, status: string,user:Jw
   };
 const getAllBooks = async (page: number, limit: number, user:JwtPayload,genre:string) => {
     try {
-        const query: any = { userId: { $ne: user.userId },status:"live" };
+        const query: any = { userId: { $ne: user.userId },status:"live" ,isReadyForReview: true };
         if (genre) {
           query.genre = { $regex: new RegExp(`^${genre}$`, 'i') }; // Case-insensitive exact match
         }
@@ -104,8 +104,25 @@ const getAllBooks = async (page: number, limit: number, user:JwtPayload,genre:st
     }
   };
 
+
+  //get for reviewed 
+  const getReviewedBooks = async (id:string) => {
+  const book=await Book.findById(id);
+  if(!book) {
+    throw new AppError(httpStatus.NOT_FOUND, "Book not found");
+  }
+  if(book.status!=="live"){
+    throw new AppError(httpStatus.FORBIDDEN, "This book is not approved");
+  }
+    const result=await Book.findByIdAndUpdate(id, {isReadyForReview: true}, { new: true })
+    if(!result) {
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to update book status");
+    }
+    return result;
+  };
 export const bookService = {
     insertBookIntoDB,
     getAllMyBooks,
     getAllBooks,
+    getReviewedBooks
 }

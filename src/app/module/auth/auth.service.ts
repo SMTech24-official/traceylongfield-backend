@@ -34,6 +34,8 @@ const loginUser = async (payload: TLoginUser) => {
 
     const jwtPayload = {
         userId: user._id,
+        name:user.fullName,
+        profileImage:user.profileImage,
         email: user.email,
         role: user.role,
     };
@@ -121,8 +123,10 @@ const refreshToken = async (token: string) => {
 
 
     const jwtPayload = {
+        userId: user._id,
+        name:user.fullName,
+        profileImage:user.profileImage,
         email: user.email,
-        userId: user.id,
         role: user.role,
     };
 

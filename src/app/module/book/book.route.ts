@@ -8,7 +8,7 @@ const router= express.Router()
 router.post("/add-book",auth(USER_ROLE.author), fileUploader.uploadMultiple, bookController.insertBookIntoDB)
 router.get("/",auth(USER_ROLE.author),  bookController.getAllMyBooks)
 router.get("/library",auth(USER_ROLE.author),  bookController.getAllBooks)
-
+router.put("/get-reviewed/:id",auth(USER_ROLE.author), bookController.getReviewedBooks)
 
 
 
