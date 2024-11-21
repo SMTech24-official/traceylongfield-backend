@@ -8,6 +8,7 @@ import config from "../../config";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import * as argon2 from "argon2";
 import { sendEmail } from "../../utils/sendEmail";
+import crypto from "crypto";
 const loginUser = async (payload: TLoginUser) => {
     // checking if the user is exist
     const user = await User.findOne({ email: payload.email })
@@ -156,28 +157,50 @@ const forgetPassword = async (email: string) => {
     }
 
 
-    const jwtPayload = {
-        email: user.email,
-        userId: user.id,
-        role: user.role,
-    };
+    const otp = crypto.randomInt(1000, 9999).toString();
 
-    const resetToken = createToken(
-        jwtPayload,
-        config.jwt_access_secret as string,
-        '10m',
-    );
+    // Set OTP expiration time to 5 minutes from now
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
 
-    const resetUILink = `${config.activeLink}?id=${user.id}&token=${resetToken} `;
+    
+    const html = `
+    <div style="font-family: Arial, sans-serif; color: #333; padding: 30px; background: linear-gradient(135deg, #6c63ff, #3f51b5); border-radius: 8px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
+            <h2 style="color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 20px;">
+                <span style="color: #ffeb3b;">Forgot password otp</span>
+            </h2>
+            <p style="font-size: 16px; color: #333; line-height: 1.5; text-align: center;">
+                Forgot password otp code below
+            </p>
+            <p style="font-size: 32px; font-weight: bold; color: #ff4081; text-align: center; margin: 20px 0;">
+                ${otp}
+            </p>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                    This OTP will expire in <strong>5 minutes</strong>. If you did not request this, please ignore this email.
+                </p>
+                <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                    If you need assistance, feel free to contact us.
+                </p>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="font-size: 12px; color: #999; text-align: center;">
+                    Best Regards,<br/>
+                    <span style="font-weight: bold; color: #3f51b5;">Booksy.buzz Team</span><br/>
+                    <a href="mailto:support@booksy.buzz.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </div> `;
 
- //   sendEmail(user.email, resetUILink);
-
+  // Send the OTP to user's email
+  await sendEmail(user.email, html, "Forgot Password OTP");
+  const updateUserProfile=await  User.findOneAndUpdate({email: user.email},{otp:otp,otpExpires:otpExpires,isVerified:false},{new:true});
 
 };
 
 const resetPassword = async (
-    payload: { email: string, newPassword: string },
-    token: string,
+    payload: { email: string, newPassword: string }
 ) => {
     // checking if the user is exist
     const user = await User.findOne({ email: payload.email })
@@ -189,44 +212,85 @@ const resetPassword = async (
     const isVerified = user?.isVerified;
 
     if (!isVerified) {
-        throw new AppError(httpStatus.FORBIDDEN, 'This user is not activate!');
+        throw new AppError(httpStatus.FORBIDDEN, 'Your OTP is not Verified!');
     }
 
 
 
 
 
-    const decoded = jwt.verify(
-        token,
-        config.jwt_access_secret as string,
-    ) as JwtPayload;
-
+ 
     //localhost:3000?id=A-0001&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBLTAwMDEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDI4NTA2MTcsImV4cCI6MTcwMjg1MTIxN30.-T90nRaz8-KouKki1DkCSMAbsHyb9yDi0djZU3D6QO4
 
-    if (payload.email !== decoded.email) {
-        throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
-    }
 
     //hash new password
     const newHashedPassword = await argon2.hash(payload.newPassword);
 
     await User.findOneAndUpdate(
         {
-            id: decoded.userId,
-            role: decoded.role,
+            id: user._id,
+            role: user.role,
         },
         {
             password: newHashedPassword,
-            needsPasswordChange: false,
-            passwordChangedAt: new Date(),
+          
         },
     );
 };
 
+// resend OTP for verification
+    const resendOtp = async (email: string) => {
+        // checking if the user is exist
+        const user = await User.findOne({ email: email })
+      
+        if (!user) {
+            throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
+        }
+        const otp = crypto.randomInt(1000, 9999).toString();
+
+        // Set OTP expiration time to 5 minutes from now
+        const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+        const html = `
+        <div style="font-family: Arial, sans-serif; color: #333; padding: 30px; background: linear-gradient(135deg, #6c63ff, #3f51b5); border-radius: 8px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
+                <h2 style="color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 20px;">
+                    <span style="color: #ffeb3b;">Resend OTP</span>
+                </h2>
+                <p style="font-size: 16px; color: #333; line-height: 1.5; text-align: center;">
+                    Here is your new OTP code to complete the process.
+                </p>
+                <p style="font-size: 32px; font-weight: bold; color: #ff4081; text-align: center; margin: 20px 0;">
+                    ${otp}
+                </p>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                        This OTP will expire in <strong>5 minutes</strong>. If you did not request this, please ignore this email.
+                    </p>
+                    <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                        If you need further assistance, feel free to contact us.
+                    </p>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <p style="font-size: 12px; color: #999; text-align: center;">
+                        Best Regards,<br/>
+                        <span style="font-weight: bold; color: #3f51b5;">Booksy.buzz Team</span><br/>
+                        <a href="mailto:support@booksy.buzz.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
+                    </p>
+                </div>
+            </div>
+        </div> `;
+    ;
+    
+      // Send the OTP to user's email
+      await sendEmail(user.email, html, "Resend OTP");
+      const updateUserProfile=await  User.findOneAndUpdate({_id: user._id},{otp:otp,otpExpires:otpExpires,isVerified:false},{new:true});
+    
+    }
 export const AuthServices = {
     loginUser,
     changePassword,
     refreshToken,
     forgetPassword,
     resetPassword,
+    resendOtp
 };

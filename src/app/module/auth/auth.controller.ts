@@ -57,19 +57,14 @@ const loginUser = catchAsync(async (req, res) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Reset link is generated successfully!',
+      message: 'Forgot otp send successfully!',
       data: result,
     });
   });
   
+  
   const resetPassword = catchAsync(async (req, res) => {
-    const token = req.headers.authorization;
-  
-    if (!token) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Something went wrong !');
-    }
-  
-    const result = await AuthServices.resetPassword(req.body, token);
+    const result = await AuthServices.resetPassword(req.body);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -77,11 +72,21 @@ const loginUser = catchAsync(async (req, res) => {
       data: result,
     });
   });
-  
+  const resendOtp = catchAsync(async (req, res) => {
+    const email=req.body.email;
+    const result = await AuthServices.resendOtp(email);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'OTP send successfully!',
+      data: result,
+    });
+  });
   export const AuthControllers = {
     loginUser,
     changePassword,
     refreshToken,
     forgetPassword,
     resetPassword,
+    resendOtp
   };
