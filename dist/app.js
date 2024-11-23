@@ -20,11 +20,12 @@ const notFound_1 = __importDefault(require("./app/middlewares/notFound"));
 const routes_1 = __importDefault(require("./app/routes"));
 const node_cron_1 = __importDefault(require("node-cron"));
 const payment_services_1 = require("./app/module/payment/payment.services");
+const deleteUnverifiedUser_1 = require("./app/utils/deleteUnverifiedUser");
 const app = (0, express_1.default)();
 //parsers
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({ origin: ['https://celebrated-kitten-1b6ccf.netlify.app', "http://localhost:3000"], credentials: true }));
+app.use((0, cors_1.default)({ origin: ['https://celebrated-kitten-1b6ccf.netlify.app', "http://localhost:3000", "https://amz-book-review.vercel.app"], credentials: true }));
 // application routes
 app.use('/api', routes_1.default);
 app.get('/', (req, res) => {
@@ -36,6 +37,15 @@ node_cron_1.default.schedule("0 0 * * *", () => __awaiter(void 0, void 0, void 0
     }
     catch (error) {
         console.error("Error checking expired subscriptions:", error);
+    }
+}));
+node_cron_1.default.schedule("*/1 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, deleteUnverifiedUser_1.deleteUnverifiedUsers)();
+        console.log("Checked and deleted unverified users successfully.");
+    }
+    catch (error) {
+        console.error("Error deleting unverified users:", error);
     }
 }));
 app.use(globalErrorhandler_1.default);

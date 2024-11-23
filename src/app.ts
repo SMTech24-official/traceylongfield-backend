@@ -28,7 +28,9 @@ cron.schedule("0 0 * * *", async () => {
   } catch (error) {
     console.error("Error checking expired subscriptions:", error);
   }
-});cron.schedule("*/1 * * * *", async () => {
+});
+
+cron.schedule("*/1 * * * *", async () => {
   try {
     await deleteUnverifiedUsers();
     console.log("Checked and deleted unverified users successfully.");

@@ -42,8 +42,9 @@ const user_model_1 = require("../users/user.model");
 const matchPassword_1 = require("../../utils/matchPassword");
 const auth_utils_1 = require("./auth.utils");
 const config_1 = __importDefault(require("../../config"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const argon2 = __importStar(require("argon2"));
+const sendEmail_1 = require("../../utils/sendEmail");
+const crypto_1 = __importDefault(require("crypto"));
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
     const user = yield user_model_1.User.findOne({ email: payload.email });
@@ -113,8 +114,10 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not active!');
     }
     const jwtPayload = {
+        userId: user._id,
+        name: user.fullName,
+        profileImage: user.profileImage,
         email: user.email,
-        userId: user.id,
         role: user.role,
     };
     const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
@@ -133,16 +136,43 @@ const forgetPassword = (email) => __awaiter(void 0, void 0, void 0, function* ()
     if (!isVerified) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not active !');
     }
-    const jwtPayload = {
-        email: user.email,
-        userId: user.id,
-        role: user.role,
-    };
-    const resetToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, '10m');
-    const resetUILink = `${config_1.default.activeLink}?id=${user.id}&token=${resetToken} `;
-    //   sendEmail(user.email, resetUILink);
+    const otp = crypto_1.default.randomInt(1000, 9999).toString();
+    // Set OTP expiration time to 5 minutes from now
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    const html = `
+    <div style="font-family: Arial, sans-serif; color: #333; padding: 30px; background: linear-gradient(135deg, #6c63ff, #3f51b5); border-radius: 8px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
+            <h2 style="color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 20px;">
+                <span style="color: #ffeb3b;">Forgot password otp</span>
+            </h2>
+            <p style="font-size: 16px; color: #333; line-height: 1.5; text-align: center;">
+                Forgot password otp code below
+            </p>
+            <p style="font-size: 32px; font-weight: bold; color: #ff4081; text-align: center; margin: 20px 0;">
+                ${otp}
+            </p>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                    This OTP will expire in <strong>5 minutes</strong>. If you did not request this, please ignore this email.
+                </p>
+                <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                    If you need assistance, feel free to contact us.
+                </p>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="font-size: 12px; color: #999; text-align: center;">
+                    Best Regards,<br/>
+                    <span style="font-weight: bold; color: #3f51b5;">Booksy.buzz Team</span><br/>
+                    <a href="mailto:support@booksy.buzz.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </div> `;
+    // Send the OTP to user's email
+    yield (0, sendEmail_1.sendEmail)(user.email, html, "Forgot Password OTP");
+    const updateUserProfile = yield user_model_1.User.findOneAndUpdate({ email: user.email }, { otp: otp, otpExpires: otpExpires, isVerified: false }, { new: true });
 });
-const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, function* () {
+const resetPassword = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
     const user = yield user_model_1.User.findOne({ email: payload.email });
     if (!user) {
@@ -151,23 +181,61 @@ const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, func
     // checking if the user is already deleted
     const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
     if (!isVerified) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not activate!');
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'Your OTP is not Verified!');
     }
-    const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
     //localhost:3000?id=A-0001&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBLTAwMDEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDI4NTA2MTcsImV4cCI6MTcwMjg1MTIxN30.-T90nRaz8-KouKki1DkCSMAbsHyb9yDi0djZU3D6QO4
-    if (payload.email !== decoded.email) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'You are forbidden!');
-    }
     //hash new password
     const newHashedPassword = yield argon2.hash(payload.newPassword);
     yield user_model_1.User.findOneAndUpdate({
-        id: decoded.userId,
-        role: decoded.role,
+        id: user._id,
+        role: user.role,
     }, {
         password: newHashedPassword,
-        needsPasswordChange: false,
-        passwordChangedAt: new Date(),
     });
+});
+// resend OTP for verification
+const resendOtp = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    // checking if the user is exist
+    const user = yield user_model_1.User.findOne({ email: email });
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found!');
+    }
+    const otp = crypto_1.default.randomInt(1000, 9999).toString();
+    // Set OTP expiration time to 5 minutes from now
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    const html = `
+        <div style="font-family: Arial, sans-serif; color: #333; padding: 30px; background: linear-gradient(135deg, #6c63ff, #3f51b5); border-radius: 8px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;">
+                <h2 style="color: #ffffff; font-size: 28px; text-align: center; margin-bottom: 20px;">
+                    <span style="color: #ffeb3b;">Resend OTP</span>
+                </h2>
+                <p style="font-size: 16px; color: #333; line-height: 1.5; text-align: center;">
+                    Here is your new OTP code to complete the process.
+                </p>
+                <p style="font-size: 32px; font-weight: bold; color: #ff4081; text-align: center; margin: 20px 0;">
+                    ${otp}
+                </p>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                        This OTP will expire in <strong>5 minutes</strong>. If you did not request this, please ignore this email.
+                    </p>
+                    <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
+                        If you need further assistance, feel free to contact us.
+                    </p>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <p style="font-size: 12px; color: #999; text-align: center;">
+                        Best Regards,<br/>
+                        <span style="font-weight: bold; color: #3f51b5;">Booksy.buzz Team</span><br/>
+                        <a href="mailto:support@booksy.buzz.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
+                    </p>
+                </div>
+            </div>
+        </div> `;
+    ;
+    // Send the OTP to user's email
+    yield (0, sendEmail_1.sendEmail)(user.email, html, "Resend OTP");
+    const updateUserProfile = yield user_model_1.User.findOneAndUpdate({ _id: user._id }, { otp: otp, otpExpires: otpExpires, isVerified: false }, { new: true });
 });
 exports.AuthServices = {
     loginUser,
@@ -175,4 +243,5 @@ exports.AuthServices = {
     refreshToken,
     forgetPassword,
     resetPassword,
+    resendOtp
 };

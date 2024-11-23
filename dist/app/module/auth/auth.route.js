@@ -14,4 +14,6 @@ router.post('/change-password', (0, auth_1.default)(constant_1.USER_ROLE.admin, 
 router.post('/refresh-token', auth_controller_1.AuthControllers.refreshToken);
 router.post('/forget-password', auth_controller_1.AuthControllers.forgetPassword);
 router.post('/reset-password', auth_controller_1.AuthControllers.resetPassword);
+// resend OTP
+router.post('/resend-otp', auth_controller_1.AuthControllers.resendOtp);
 exports.AuthRoutes = router;
