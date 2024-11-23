@@ -6,6 +6,7 @@ import { Book } from "./book.model";
 import { JwtPayload } from "jsonwebtoken";
 import { Notification } from "../activity/activity.model";
 import { fileUploader } from "../../helpers/fileUpload";
+import { Point } from "../points/points.model";
 
 const insertBookIntoDB=async(req:Request)=>{
   const user = req.user;
@@ -30,31 +31,36 @@ const insertBookIntoDB=async(req:Request)=>{
   }
   
   // Helper function for uploading to Cloudinary
-  const uploadFileToCloudinary = async (file: Express.Multer.File): Promise<string> => {
-    try {
-      const result = await  fileUploader.uploadToCloudinary(file);
-      return result.secure_url; // Return the Cloudinary secure URL
-    } catch (error) {
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file to Cloudinary");
-    }
-  };
+  // const uploadFileToCloudinary = async (file: Express.Multer.File): Promise<string> => {
+  //   try {
+  //     const result = await  fileUploader.uploadToCloudinary(file);
+  //     return result.secure_url; // Return the Cloudinary secure URL
+  //   } catch (error) {
+  //     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file to Cloudinary");
+  //   }
+  // };
   
-  // Upload book cover and book PDF
-  let bookCoverUrl, bookPdfUrl;
-  try {
-    bookCoverUrl = await uploadFileToCloudinary(files.bookCover[0]);
-    bookPdfUrl = await uploadFileToCloudinary(files.bookPdf[0]);
-  } catch (error) {
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "File upload error");
-  }
+  // // Upload book cover and book PDF
+  // let bookCoverUrl, bookPdfUrl;
+  // try {
+  //   bookCoverUrl = await uploadFileToCloudinary(files.bookCover[0]);
+  //   bookPdfUrl = await uploadFileToCloudinary(files.bookPdf[0]);
+  // } catch (error) {
+  //   throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "File upload error");
+  // }
+  const bookCoverUrl = await fileUploader.uploadToDigitalOcean(files.bookCover[0]);
+  const bookPdfUrl = await fileUploader.uploadToDigitalOcean(files.bookPdf[0]);
   
+  const points= await Point.findOne({type:bookData.bookType})
   // Create book payload
   const payload = {
     ...bookData,
+    points:points?.points||0,
     userId: user.userId,
     status: "pending",
-    bookCover: bookCoverUrl,
-    bookPdf: bookPdfUrl,
+    bookCover: bookCoverUrl?.Location,
+    bookPdf: bookPdfUrl?.Location,
+
   };
   
   // Save book in the database

@@ -18,6 +18,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const book_model_1 = require("./book.model");
 const activity_model_1 = require("../activity/activity.model");
 const fileUpload_1 = require("../../helpers/fileUpload");
+const points_model_1 = require("../points/points.model");
 const insertBookIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const files = req.files;
@@ -35,26 +36,27 @@ const insertBookIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* ()
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid JSON in request body");
     }
     // Helper function for uploading to Cloudinary
-    const uploadFileToCloudinary = (file) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const result = yield fileUpload_1.fileUploader.uploadToCloudinary(file);
-            return result.secure_url; // Return the Cloudinary secure URL
-        }
-        catch (error) {
-            throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Failed to upload file to Cloudinary");
-        }
-    });
-    // Upload book cover and book PDF
-    let bookCoverUrl, bookPdfUrl;
-    try {
-        bookCoverUrl = yield uploadFileToCloudinary(files.bookCover[0]);
-        bookPdfUrl = yield uploadFileToCloudinary(files.bookPdf[0]);
-    }
-    catch (error) {
-        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "File upload error");
-    }
+    // const uploadFileToCloudinary = async (file: Express.Multer.File): Promise<string> => {
+    //   try {
+    //     const result = await  fileUploader.uploadToCloudinary(file);
+    //     return result.secure_url; // Return the Cloudinary secure URL
+    //   } catch (error) {
+    //     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file to Cloudinary");
+    //   }
+    // };
+    // // Upload book cover and book PDF
+    // let bookCoverUrl, bookPdfUrl;
+    // try {
+    //   bookCoverUrl = await uploadFileToCloudinary(files.bookCover[0]);
+    //   bookPdfUrl = await uploadFileToCloudinary(files.bookPdf[0]);
+    // } catch (error) {
+    //   throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "File upload error");
+    // }
+    const bookCoverUrl = yield fileUpload_1.fileUploader.uploadToDigitalOcean(files.bookCover[0]);
+    const bookPdfUrl = yield fileUpload_1.fileUploader.uploadToDigitalOcean(files.bookPdf[0]);
+    const points = yield points_model_1.Point.findOne({ type: bookData.bookType });
     // Create book payload
-    const payload = Object.assign(Object.assign({}, bookData), { userId: user.userId, status: "pending", bookCover: bookCoverUrl, bookPdf: bookPdfUrl });
+    const payload = Object.assign(Object.assign({}, bookData), { points: (points === null || points === void 0 ? void 0 : points.points) || 0, userId: user.userId, status: "pending", bookCover: bookCoverUrl === null || bookCoverUrl === void 0 ? void 0 : bookCoverUrl.Location, bookPdf: bookPdfUrl === null || bookPdfUrl === void 0 ? void 0 : bookPdfUrl.Location });
     // Save book in the database
     let result;
     try {

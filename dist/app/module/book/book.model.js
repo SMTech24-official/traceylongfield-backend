@@ -15,6 +15,7 @@ const BookSchema = new mongoose_1.Schema({
     genre: { type: String, required: true },
     isReadyForReview: { type: Boolean, default: false },
     bookType: { type: String, required: true },
+    points: { type: Number, required: true }
     //wordCount: { type: Number, required: true },
 }, { timestamps: true });
 // Create the model

@@ -13,6 +13,7 @@ export interface IAddBook{
     status:"pending"|"live",
     isReadyForReview:boolean;
     bookType:string;
+    points:number;
    // wordCount:number;
     createdAt: Date;
     updatedAt: Date;
