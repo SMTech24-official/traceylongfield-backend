@@ -19,6 +19,7 @@ const globalErrorhandler_1 = __importDefault(require("./app/middlewares/globalEr
 const notFound_1 = __importDefault(require("./app/middlewares/notFound"));
 const routes_1 = __importDefault(require("./app/routes"));
 const node_cron_1 = __importDefault(require("node-cron"));
+const path_1 = __importDefault(require("path"));
 const payment_services_1 = require("./app/module/payment/payment.services");
 const deleteUnverifiedUser_1 = require("./app/utils/deleteUnverifiedUser");
 const app = (0, express_1.default)();
@@ -31,6 +32,9 @@ app.use('/api', routes_1.default);
 app.get('/', (req, res) => {
     res.send('Hi Developer !');
 });
+// Serve static files from the uploads directory
+app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "..", "uploads")));
+app.use(express_1.default.static("public"));
 node_cron_1.default.schedule("0 0 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, payment_services_1.checkExpiredSubscriptions)();

@@ -15,23 +15,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.bookService = void 0;
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
-const config_1 = __importDefault(require("../../config"));
 const book_model_1 = require("./book.model");
 const activity_model_1 = require("../activity/activity.model");
+const fileUpload_1 = require("../../helpers/fileUpload");
 const insertBookIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const files = req.files;
     if (!files || !files.bookCover || !files.bookPdf) {
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "File is required for  add book");
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "File is required to add book");
     }
-    const bookCover = files.bookCover.map((file) => ({
-        fileName: file === null || file === void 0 ? void 0 : file.filename,
-        url: `${config_1.default.back_end_base_url}/uploads/${file === null || file === void 0 ? void 0 : file.originalname}`,
-    }));
-    const bookPdf = files.bookPdf.map((file) => ({
-        fileName: file === null || file === void 0 ? void 0 : file.filename,
-        url: `${config_1.default.back_end_base_url}/uploads/${file === null || file === void 0 ? void 0 : file.originalname}`,
-    }));
     if (!req.body.data) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid request body");
     }
@@ -42,13 +34,47 @@ const insertBookIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* ()
     catch (error) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid JSON in request body");
     }
-    const payload = Object.assign(Object.assign({}, bookData), { userId: user.userId, status: "pending", bookCover: bookCover[0].url, bookPdf: bookPdf[0].url });
-    const result = yield book_model_1.Book.create(payload);
-    if (!result) {
-        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Failed to insert book into DB");
+    // Helper function for uploading to Cloudinary
+    const uploadFileToCloudinary = (file) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const result = yield fileUpload_1.fileUploader.uploadToCloudinary(file);
+            return result.secure_url; // Return the Cloudinary secure URL
+        }
+        catch (error) {
+            throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Failed to upload file to Cloudinary");
+        }
+    });
+    // Upload book cover and book PDF
+    let bookCoverUrl, bookPdfUrl;
+    try {
+        bookCoverUrl = yield uploadFileToCloudinary(files.bookCover[0]);
+        bookPdfUrl = yield uploadFileToCloudinary(files.bookPdf[0]);
     }
-    if (result) {
-        yield activity_model_1.Notification.create({ user: user.userId, message: `your book ${bookData.title} has been submitted for approval` });
+    catch (error) {
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "File upload error");
+    }
+    // Create book payload
+    const payload = Object.assign(Object.assign({}, bookData), { userId: user.userId, status: "pending", bookCover: bookCoverUrl, bookPdf: bookPdfUrl });
+    // Save book in the database
+    let result;
+    try {
+        result = yield book_model_1.Book.create(payload);
+        if (!result) {
+            throw new Error("Failed to insert book into DB");
+        }
+    }
+    catch (error) {
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, error.message);
+    }
+    // Send notification if book creation is successful
+    try {
+        yield activity_model_1.Notification.create({
+            user: user.userId,
+            message: `Your book "${bookData.title}" has been submitted for approval`,
+        });
+    }
+    catch (error) {
+        console.error("Failed to create notification:", error.message);
     }
     return result;
 });

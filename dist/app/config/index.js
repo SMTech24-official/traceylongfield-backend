@@ -18,5 +18,8 @@ exports.default = {
     mail_pass: process.env.MAIL_PASS,
     back_end_base_url: process.env.BACK_END_BASE_URL,
     stripe_secret_key: process.env.STRIPE_SECRET_KEY,
-    front_end_base_url: process.env.FRONT_END_BASE_URL
+    front_end_base_url: process.env.FRONT_END_BASE_URL,
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
+    cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET
 };
