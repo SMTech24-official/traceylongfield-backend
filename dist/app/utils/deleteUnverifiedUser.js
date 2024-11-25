@@ -8,17 +8,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUnverifiedUsers = void 0;
+const http_status_1 = __importDefault(require("http-status"));
+const AppError_1 = __importDefault(require("../errors/AppError"));
 const user_model_1 = require("../module/users/user.model");
 const deleteUnverifiedUsers = () => __awaiter(void 0, void 0, void 0, function* () {
-    // delete unverified users check that their OtpExpires date 
+    // delete unverified users check that their OtpExpires date
     try {
-        const deleteCount = yield user_model_1.User.deleteMany({ otpExpires: { $lt: new Date() }, isVerified: false });
-        console.log(`${deleteCount.deletedCount} expired OTP records were deleted.`);
+        const user = yield user_model_1.User.find({
+            otpExpires: { $lt: new Date() },
+            isVerified: false,
+        });
+        if (user.length > 0) {
+            const deleteCount = yield user_model_1.User.deleteMany({
+                otpExpires: { $lt: new Date() },
+                isVerified: false,
+            });
+        }
+        return;
     }
     catch (error) {
-        console.error("Error deleting expired OTPs:", error);
+        throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, error.message);
     }
 });
 exports.deleteUnverifiedUsers = deleteUnverifiedUsers;
