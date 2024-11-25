@@ -8,6 +8,8 @@ import cron from "node-cron";
 import path from "path"
 import { checkExpiredSubscriptions } from './app/module/payment/payment.services';
 import { deleteUnverifiedUsers } from './app/utils/deleteUnverifiedUser';
+import AppError from './app/errors/AppError';
+import httpStatus from 'http-status';
 const app: Application = express();
 
 //parsers
@@ -28,17 +30,17 @@ app.use(express.static("public"));
 cron.schedule("0 0 * * *", async () => {
   try {
     await checkExpiredSubscriptions();
-  } catch (error) {
-    console.error("Error checking expired subscriptions:", error);
+  } catch (error:any) {
+    throw new AppError(httpStatus.NOT_ACCEPTABLE,error.message);
   }
 });
 
 cron.schedule("*/1 * * * *", async () => {
   try {
     await deleteUnverifiedUsers();
-    console.log("Checked and deleted unverified users successfully.");
-  } catch (error) {
-    console.error("Error deleting unverified users:", error);
+  
+  } catch (error:any) {
+    throw new AppError(httpStatus.NOT_ACCEPTABLE,error.message);
   }
 });
 
