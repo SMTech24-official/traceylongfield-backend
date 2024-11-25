@@ -48,8 +48,10 @@ node_cron_1.default.schedule("0 0 * * *", () => __awaiter(void 0, void 0, void 0
 node_cron_1.default.schedule("*/1 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, deleteUnverifiedUser_1.deleteUnverifiedUsers)();
+        console.log("hhddd");
     }
     catch (error) {
+        console.log('222222222');
         throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, error.message);
     }
 }));
