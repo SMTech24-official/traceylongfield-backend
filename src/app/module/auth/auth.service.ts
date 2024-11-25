@@ -16,6 +16,7 @@ const loginUser = async (payload: TLoginUser) => {
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
     }
+    console.log(user)
     // checking if the user is already deleted
 
     const isVerified = user?.isVerified;
