@@ -38,10 +38,10 @@ cron.schedule("0 0 * * *", async () => {
 cron.schedule("*/1 * * * *", async () => {
   try {
    const result = await deleteUnverifiedUsers();
-console.log("hhhhhhhhh")
+
 return
   } catch (error:any) {
-    console.log('222222222')
+ 
     throw new AppError(httpStatus.NOT_ACCEPTABLE,error.message);
   }
 });
