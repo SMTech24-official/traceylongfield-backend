@@ -146,7 +146,7 @@ const rejectBook = (bookId, reason) => __awaiter(void 0, void 0, void 0, functio
 // get all review
 const getAllReview = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield reading_model_1.ReadingBook.find({
-        readingStatus: "finished",
+        readingStatus: "finish",
         isApproved: false,
     })
         .populate("userId", "-password")

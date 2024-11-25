@@ -8,6 +8,7 @@ import { sendEmail } from "../../utils/sendEmail";
 import config from "../../config";
 import { User } from "./user.model";
 import { Request } from "express";
+import { fileUploader } from '../../helpers/fileUpload';
 
 const createUser = async (payload: IUser,query:any) => {
   payload.password = await argon2.hash(payload.password);
@@ -136,10 +137,11 @@ if (!file) {
   );
 }
 
+const image= await fileUploader.uploadToDigitalOcean(file)
 const payload={
   _id: req.user.userId,
   ...body,
-  profileImage: `${config.back_end_base_url}/uploads/${file?.originalname}`
+  profileImage: image.Location
 }
 
 const result = await User.findByIdAndUpdate(req.user.userId, payload, { new: true }).select("-password");

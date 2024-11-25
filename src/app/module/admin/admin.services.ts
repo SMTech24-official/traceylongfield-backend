@@ -3,7 +3,7 @@ import { IUser } from "../users/user.interface";
 import { User } from "../users/user.model";
 import { Book } from "../book/book.model";
 import AppError from "../../errors/AppError";
-import httpStatus, { REQUEST_ENTITY_TOO_LARGE } from "http-status";
+import httpStatus from "http-status";
 import { Notification } from "../activity/activity.model";
 import { startSession } from "mongoose";
 import { ReadingBook } from "../reading/reading.model";
@@ -137,7 +137,7 @@ const rejectBook = async (bookId: string, reason: string) => {
 
 const getAllReview = async () => {
   const result = await ReadingBook.find({
-    readingStatus: "finished",
+    readingStatus: "finish",
     isApproved: false,
   })
     .populate("userId", "-password")
@@ -181,7 +181,9 @@ const approvedReview = async (id: string) => {
     if (!reviewBook) {
       throw new AppError(httpStatus.NOT_FOUND, "Book not found");
     }
+   
     const reviewPoints = await Point.findOne({ type: reviewBook.bookType });
+  
     if (!reviewPoints) {
       throw new AppError(httpStatus.NOT_FOUND, "Points not found");
     }
