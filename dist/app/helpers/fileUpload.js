@@ -20,6 +20,7 @@ const cloudinary_1 = require("cloudinary");
 //import fs from 'fs'
 const promises_1 = __importDefault(require("fs/promises"));
 const client_s3_1 = require("@aws-sdk/client-s3");
+// /var/www/uploads
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path_1.default.join(process.cwd(), "uploads"));

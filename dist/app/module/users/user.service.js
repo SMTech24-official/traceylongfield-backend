@@ -149,15 +149,12 @@ const verifyOtp = (payload) => __awaiter(void 0, void 0, void 0, function* () {
 });
 // update user profile 
 const updateUserProfile = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.body.data) {
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid request body");
-    }
     const file = req.file;
     const body = JSON.parse(req.body.data);
-    if (!file) {
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "File is required for organization image");
+    let image;
+    if (file) {
+        image = yield fileUpload_1.fileUploader.uploadToDigitalOcean(file);
     }
-    const image = yield fileUpload_1.fileUploader.uploadToDigitalOcean(file);
     const payload = Object.assign(Object.assign({ _id: req.user.userId }, body), { profileImage: image.Location });
     const result = yield user_model_1.User.findByIdAndUpdate(req.user.userId, payload, { new: true }).select("-password");
     return result;
