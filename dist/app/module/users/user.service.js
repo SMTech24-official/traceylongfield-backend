@@ -55,6 +55,7 @@ const argon2 = __importStar(require("argon2"));
 const sendEmail_1 = require("../../utils/sendEmail");
 const config_1 = __importDefault(require("../../config"));
 const user_model_1 = require("./user.model");
+const fileUpload_1 = require("../../helpers/fileUpload");
 const createUser = (payload, query) => __awaiter(void 0, void 0, void 0, function* () {
     payload.password = yield argon2.hash(payload.password);
     // Generate a 6-digit OTP
@@ -156,7 +157,8 @@ const updateUserProfile = (req) => __awaiter(void 0, void 0, void 0, function* (
     if (!file) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "File is required for organization image");
     }
-    const payload = Object.assign(Object.assign({ _id: req.user.userId }, body), { profileImage: `${config_1.default.back_end_base_url}/uploads/${file === null || file === void 0 ? void 0 : file.originalname}` });
+    const image = yield fileUpload_1.fileUploader.uploadToDigitalOcean(file);
+    const payload = Object.assign(Object.assign({ _id: req.user.userId }, body), { profileImage: image.Location });
     const result = yield user_model_1.User.findByIdAndUpdate(req.user.userId, payload, { new: true }).select("-password");
     return result;
 });

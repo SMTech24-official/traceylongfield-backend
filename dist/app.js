@@ -22,6 +22,8 @@ const node_cron_1 = __importDefault(require("node-cron"));
 const path_1 = __importDefault(require("path"));
 const payment_services_1 = require("./app/module/payment/payment.services");
 const deleteUnverifiedUser_1 = require("./app/utils/deleteUnverifiedUser");
+const AppError_1 = __importDefault(require("./app/errors/AppError"));
+const http_status_1 = __importDefault(require("http-status"));
 const app = (0, express_1.default)();
 //parsers
 app.use(express_1.default.json());
@@ -40,16 +42,15 @@ node_cron_1.default.schedule("0 0 * * *", () => __awaiter(void 0, void 0, void 0
         yield (0, payment_services_1.checkExpiredSubscriptions)();
     }
     catch (error) {
-        console.error("Error checking expired subscriptions:", error);
+        throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, error.message);
     }
 }));
 node_cron_1.default.schedule("*/1 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, deleteUnverifiedUser_1.deleteUnverifiedUsers)();
-        console.log("Checked and deleted unverified users successfully.");
     }
     catch (error) {
-        console.error("Error deleting unverified users:", error);
+        throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, error.message);
     }
 }));
 app.use(globalErrorhandler_1.default);

@@ -23,7 +23,7 @@ const auth = (...requiredRoles) => {
         const token = req.headers.authorization;
         // checking if the token is missing
         if (!token) {
-            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized!');
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized!");
         }
         // checking if the given token is valid
         const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
@@ -31,15 +31,15 @@ const auth = (...requiredRoles) => {
         // checking if the user is exist
         const user = yield user_model_1.User.findOne({ _id: userId });
         if (!user) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, "This user is not found !");
         }
         // checking if the user is already deleted
         const isDeleted = user === null || user === void 0 ? void 0 : user.isVerified;
         if (!isDeleted) {
-            throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is not verified !');
+            throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is not verified !");
         }
         if (requiredRoles && !requiredRoles.includes(role)) {
-            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized  hi!');
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized  hi!");
         }
         req.user = decoded;
         next();
