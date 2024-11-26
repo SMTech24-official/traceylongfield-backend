@@ -23,7 +23,8 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 // /var/www/uploads
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path_1.default.join(process.cwd(), "/var/www/uploads"));
+        //cb(null, path.join(process.cwd(), "/var/www/uploads"));
+        cb(null, path_1.default.join(process.cwd(), "uploads"));
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
@@ -45,11 +46,11 @@ const uploadGuide = upload.fields([
 cloudinary_1.v2.config({
     cloud_name: 'dezfej6wq',
     api_key: config_1.default.cloudinary_api_key,
-    api_secret: config_1.default.cloudinary_api_secret // Click 'View API Keys' above to copy your API secret
+    api_secret: config_1.default.cloudinary_api_secret
 });
 // Configure DigitalOcean Spaces
 const s3Client = new client_s3_1.S3Client({
-    region: "us-east-1", // Replace with your region if necessary
+    region: "us-east-1",
     endpoint: process.env.DO_SPACE_ENDPOINT,
     credentials: {
         accessKeyId: process.env.DO_SPACE_ACCESS_KEY || "",
@@ -84,16 +85,16 @@ const uploadToDigitalOcean = (file) => __awaiter(void 0, void 0, void 0, functio
         // Prepare file upload parameters
         const Key = `buksybuzz/${Date.now()}_${file.originalname}`;
         const uploadParams = {
-            Bucket: process.env.DO_SPACE_BUCKET || "", // Replace with your DigitalOcean Space bucket name
+            Bucket: process.env.DO_SPACE_BUCKET || "",
             Key,
             Body: yield promises_1.default.readFile(file.path),
-            ACL: "public-read", // Use ObjectCannedACL type explicitly
-            ContentType: file.mimetype, // Ensure correct file type is sent
+            ACL: "public-read",
+            ContentType: file.mimetype,
         };
         // Upload file to DigitalOcean Space
         yield s3Client.send(new client_s3_1.PutObjectCommand(uploadParams));
         // Safely remove the file from local storage after upload
-        yield promises_1.default.unlink(file.path);
+        // await fs.unlink(file.path);
         // Format the URL to include "https://"
         const fileURL = `${process.env.DO_SPACE_ENDPOINT}/${process.env.DO_SPACE_BUCKET}/${Key}`;
         return {

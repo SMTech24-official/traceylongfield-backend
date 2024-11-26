@@ -87,7 +87,8 @@ const getToReviewedBook = (user) => __awaiter(void 0, void 0, void 0, function* 
     const readingBook = yield reading_model_1.ReadingBook.find({
         userId: user.userId,
         readingStatus: "reading",
-    });
+    }).populate({ path: "bookId" }).populate({ path: "userId", select: "-password" });
+    ;
     if (!readingBook) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No reading book found");
     }
@@ -98,7 +99,8 @@ const getToReviewOverDueBook = (user) => __awaiter(void 0, void 0, void 0, funct
     const readingBook = yield reading_model_1.ReadingBook.find({
         userId: user.userId,
         readingStatus: "paused",
-    });
+    }).populate({ path: "bookId" }).populate({ path: "userId", select: "-password" });
+    ;
     if (!readingBook) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No reading book found");
     }
