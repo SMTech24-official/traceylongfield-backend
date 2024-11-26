@@ -9,6 +9,7 @@ import { KnowledgeHubRouter } from "../module/knowledgeHub/knowledgeHub.routes";
 import { AuthorGuide } from "../module/authorGuid/authorGuide.routes";
 import { PaymentRoutes } from "../module/payment/payment.routes";
 import { inviteRouter } from "../module/invite/invite.routes";
+import { activityRouter } from "../module/activity/activity.route";
 
 
 
@@ -49,7 +50,11 @@ const moduleRoutes=[
     {
         path: '/invite',
         route: inviteRouter
-    }
+    },
+    {
+        path: '/activity',
+        route: activityRouter
+    },
  
 ]
 

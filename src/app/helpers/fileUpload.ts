@@ -21,8 +21,8 @@ interface UploadResponse {
 // /var/www/uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-   cb(null, path.join(process.cwd(), "/var/www/uploads"));
-   //  cb(null, path.join(process.cwd(), "uploads"));
+   //cb(null, path.join(process.cwd(), "/var/www/uploads"));
+     cb(null, path.join(process.cwd(), "uploads"));
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -104,7 +104,7 @@ const uploadToDigitalOcean = async (
     await s3Client.send(new PutObjectCommand(uploadParams));
 
     // Safely remove the file from local storage after upload
-    // await fs.unlink(file.path);
+     await fs.unlink(file.path);
 
     // Format the URL to include "https://"
     const fileURL = `${process.env.DO_SPACE_ENDPOINT}/${process.env.DO_SPACE_BUCKET}/${Key}`;
