@@ -23,8 +23,9 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 // /var/www/uploads
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path_1.default.join(process.cwd(), "/var/www/uploads"));
-        // cb(null, path.join(process.cwd(), "/uploads"));
+        //  cb(null, path.join(process.cwd(), "/var/www/uploads"));
+        cb(null, path_1.default.join("/var/www", "uploads"));
+        //  cb(null, path.join(process.cwd(), "/uploads"));
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
@@ -94,7 +95,7 @@ const uploadToDigitalOcean = (file) => __awaiter(void 0, void 0, void 0, functio
         // Upload file to DigitalOcean Space
         yield s3Client.send(new client_s3_1.PutObjectCommand(uploadParams));
         // Safely remove the file from local storage after upload
-        // await fs.unlink(file.path);
+        yield promises_1.default.unlink(file.path);
         // Format the URL to include "https://"
         const fileURL = `${process.env.DO_SPACE_ENDPOINT}/${process.env.DO_SPACE_BUCKET}/${Key}`;
         return {

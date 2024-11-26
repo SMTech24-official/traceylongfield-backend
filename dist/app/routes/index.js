@@ -11,6 +11,7 @@ const knowledgeHub_routes_1 = require("../module/knowledgeHub/knowledgeHub.route
 const authorGuide_routes_1 = require("../module/authorGuid/authorGuide.routes");
 const payment_routes_1 = require("../module/payment/payment.routes");
 const invite_routes_1 = require("../module/invite/invite.routes");
+const activity_route_1 = require("../module/activity/activity.route");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     { path: '/users',
@@ -47,7 +48,11 @@ const moduleRoutes = [
     {
         path: '/invite',
         route: invite_routes_1.inviteRouter
-    }
+    },
+    {
+        path: '/activity',
+        route: activity_route_1.activityRouter
+    },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 exports.default = router;

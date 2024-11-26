@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./app/config"));
+const seedAdmin_1 = require("./app/db/seedAdmin");
 let server;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +31,7 @@ function main() {
     });
 }
 main();
+(0, seedAdmin_1.CreateAdmin)();
 process.on('unhandledRejection', (err) => {
     console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
     if (server) {
