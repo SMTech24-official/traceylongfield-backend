@@ -147,7 +147,7 @@ const getAllReview = async () => {
 // get single review
 
 const getSingleReview = async (id: string) => {
-  console.log("getSingleReview");
+ 
   const result: any = await ReadingBook.findById(id)
     .populate("userId", "-password")
     .populate("bookId");
@@ -211,7 +211,7 @@ const approvedReview = async (id: string) => {
 // reject review
 
 const rejectReview = async (id: string, reason: string) => {
-  console.log(id,reason)
+ 
   const session = await startSession();
 try {
   session.startTransaction();
@@ -266,9 +266,7 @@ const getAllBookBasedUsers = async (query: any,id:string) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
   const skip = (page - 1) * limit;
-console.log(
-  id
-)
+
 const baseQuery: Partial<IAddBook> = {
 
 };
@@ -276,7 +274,7 @@ const baseQuery: Partial<IAddBook> = {
 if(query.status){
   baseQuery.status=query.status
 }
-console.log(baseQuery)
+
   const result = await Book.find({userId:id,...baseQuery})
    .skip(skip)
    .limit(limit)

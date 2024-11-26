@@ -161,7 +161,6 @@ const updateUserProfile = (req) => __awaiter(void 0, void 0, void 0, function* (
 });
 // get user profile
 const getUserProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(user);
     const result = yield user_model_1.User.findById(user.userId).select("-password");
     return result;
 });

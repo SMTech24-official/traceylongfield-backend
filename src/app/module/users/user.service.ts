@@ -145,7 +145,7 @@ return result
 }
 // get user profile
 const getUserProfile = async (user:JwtPayload)=>{
-  console.log(user)
+
   const result= await User.findById(user.userId).select("-password")
   return result
 }

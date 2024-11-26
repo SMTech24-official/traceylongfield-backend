@@ -96,7 +96,7 @@ const updateAuthorGuide = async (req: Request) => {
   if (pdfFile) {
     updateDoc.pdfFile = pdfFile[0].url;
   }
-  console.log(id, updateDoc);
+
   const authorGuide = await AuthorGuid.findByIdAndUpdate(id, updateDoc, {
     new: true,
   });

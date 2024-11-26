@@ -67,7 +67,6 @@ const finishReading = (readingBookId, user) => __awaiter(void 0, void 0, void 0,
 });
 // complete review
 const completeReview = (user, readingBookId) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(user, readingBookId);
     const ExistUser = yield user_model_1.User.findOne({ _id: user.userId });
     if (!ExistUser) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, "User not found");

@@ -12,5 +12,6 @@ router.get("/:id",auth(USER_ROLE.author,USER_ROLE.admin),  readingController.get
 router.post("/start-reading/:id",auth(USER_ROLE.author),  readingController.startReading)
 router.patch("/finish-reading/:id",auth(USER_ROLE.author),  readingController.finishReading)
 router.patch("/give-review/:id",auth(USER_ROLE.author),  readingController.completeReview)
+router.get("/my-book-review/all",auth(USER_ROLE.admin,USER_ROLE.author,USER_ROLE.superAdmin),readingController.myBookReviewHistory)
 
 export const ReadingRouter=router

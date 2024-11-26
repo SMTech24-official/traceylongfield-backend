@@ -9,6 +9,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import * as argon2 from "argon2";
 import { sendEmail } from "../../utils/sendEmail";
 import crypto from "crypto";
+import { ObjectId } from 'mongoose';
 const loginUser = async (payload: TLoginUser) => {
     // checking if the user is exist
     const user = await User.findOne({ email: payload.email })
@@ -16,7 +17,7 @@ const loginUser = async (payload: TLoginUser) => {
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
     }
-    console.log(user)
+   
     // checking if the user is already deleted
 
     const isVerified = user?.isVerified;
@@ -35,7 +36,7 @@ const loginUser = async (payload: TLoginUser) => {
     //create token and sent to the  client
 
     const jwtPayload = {
-        userId: user._id,
+        userId:user._id,
         name:user.fullName,
         profileImage:user.profileImage,
         email: user.email,

@@ -99,7 +99,6 @@ const updateAuthorGuide = (req) => __awaiter(void 0, void 0, void 0, function* (
     if (pdfFile) {
         updateDoc.pdfFile = pdfFile[0].url;
     }
-    console.log(id, updateDoc);
     const authorGuide = yield authorGuide_model_1.AuthorGuid.findByIdAndUpdate(id, updateDoc, {
         new: true,
     });
