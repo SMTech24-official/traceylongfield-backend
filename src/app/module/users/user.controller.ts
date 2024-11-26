@@ -27,7 +27,6 @@ const verifyOtp = catchAsync(async (req, res) => {
 });
 const updateUserProfile = catchAsync(async (req, res) => {
   const result = await userServices.updateUserProfile(req);
-  console.log(req.file);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
