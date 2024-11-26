@@ -24,6 +24,7 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path_1.default.join(process.cwd(), "/var/www/uploads"));
+        // cb(null, path.join(process.cwd(), "/uploads"));
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
