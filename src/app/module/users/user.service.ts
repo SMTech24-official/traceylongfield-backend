@@ -125,23 +125,18 @@ const verifyOtp = async (payload: { email: string; otp: string }) => {
 };
 // update user profile 
 const updateUserProfile =async (req:Request)=>{
-  if (!req.body.data) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid request body");
-  }
+ 
   const file=req.file;
   const body=JSON.parse(req.body.data);
-if (!file) {
-  throw new AppError(
-    httpStatus.BAD_REQUEST,
-    "File is required for organization image"
-  );
-}
+let image
 
-const image= await fileUploader.uploadToDigitalOcean(file)
+if(file){
+   image= await fileUploader.uploadToDigitalOcean(file!)
+}
 const payload={
   _id: req.user.userId,
   ...body,
-  profileImage: image.Location
+  profileImage: image!.Location
 }
 
 const result = await User.findByIdAndUpdate(req.user.userId, payload, { new: true }).select("-password");
