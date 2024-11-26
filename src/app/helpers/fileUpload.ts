@@ -21,8 +21,8 @@ interface UploadResponse {
 // /var/www/uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(process.cwd(), "/var/www/uploads"));
-    // cb(null, path.join(process.cwd(), "/uploads"));
+   //cb(null, path.join(process.cwd(), "/var/www/uploads"));
+     cb(null, path.join(process.cwd(), "uploads"));
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -48,11 +48,11 @@ const uploadGuide = upload.fields([
 cloudinary.config({ 
   cloud_name: 'dezfej6wq', 
   api_key: config.cloudinary_api_key, 
-  api_secret:config.cloudinary_api_secret  // Click 'View API Keys' above to copy your API secret
+  api_secret:config.cloudinary_api_secret  
 });
 // Configure DigitalOcean Spaces
 const s3Client = new S3Client({
-  region: "us-east-1", // Replace with your region if necessary
+  region: "us-east-1",
   endpoint: process.env.DO_SPACE_ENDPOINT,
   credentials: {
     accessKeyId: process.env.DO_SPACE_ACCESS_KEY || "",
@@ -93,18 +93,18 @@ const uploadToDigitalOcean = async (
     // Prepare file upload parameters
     const Key = `buksybuzz/${Date.now()}_${file.originalname}`;
     const uploadParams = {
-      Bucket: process.env.DO_SPACE_BUCKET || "", // Replace with your DigitalOcean Space bucket name
+      Bucket: process.env.DO_SPACE_BUCKET || "", 
       Key,
       Body: await fs.readFile(file.path),
-      ACL: "public-read" as ObjectCannedACL, // Use ObjectCannedACL type explicitly
-      ContentType: file.mimetype, // Ensure correct file type is sent
+      ACL: "public-read" as ObjectCannedACL, 
+      ContentType: file.mimetype, 
     };
 
     // Upload file to DigitalOcean Space
     await s3Client.send(new PutObjectCommand(uploadParams));
 
     // Safely remove the file from local storage after upload
-    await fs.unlink(file.path);
+    // await fs.unlink(file.path);
 
     // Format the URL to include "https://"
     const fileURL = `${process.env.DO_SPACE_ENDPOINT}/${process.env.DO_SPACE_BUCKET}/${Key}`;

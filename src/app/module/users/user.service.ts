@@ -9,6 +9,7 @@ import config from "../../config";
 import { User } from "./user.model";
 import { Request } from "express";
 import { fileUploader } from '../../helpers/fileUpload';
+import { JwtPayload } from 'jsonwebtoken';
 
 const createUser = async (payload: IUser,query:any) => {
   payload.password = await argon2.hash(payload.password);
@@ -142,9 +143,15 @@ const payload={
 const result = await User.findByIdAndUpdate(req.user.userId, payload, { new: true }).select("-password");
 return result
 }
+// get user profile
+const getUserProfile = async (user:JwtPayload)=>{
+  console.log(user)
+  const result= await User.findById(user.userId).select("-password")
+  return result
+}
 export const userServices = {
   createUser,
   verifyOtp,
-
-  updateUserProfile
+  updateUserProfile,
+  getUserProfile
 };

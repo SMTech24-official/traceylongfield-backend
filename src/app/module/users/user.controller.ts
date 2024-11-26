@@ -36,10 +36,20 @@ const createUser= catchAsync(async (req, res) => {
     });
    
   }); 
+  const getUserProfile = catchAsync(async (req, res) => {
+    const result = await userServices.getUserProfile(req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get user profile successfully!",
+      data: result,
+    });
+   
+  }); 
 
   export const userController={
     createUser,
     verifyOtp,
- 
+    getUserProfile,
     updateUserProfile
   }

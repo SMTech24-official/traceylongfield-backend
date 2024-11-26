@@ -94,7 +94,7 @@ const getToReviewedBook = async (user: JwtPayload) => {
   const readingBook = await ReadingBook.find({
     userId: user.userId,
     readingStatus: "reading",
-  });
+  }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });;
 
   if (!readingBook) {
     throw new AppError(httpStatus.NOT_FOUND, "No reading book found");
@@ -108,7 +108,7 @@ const getToReviewOverDueBook = async (user: JwtPayload) => {
   const readingBook = await ReadingBook.find({
     userId: user.userId,
     readingStatus: "paused",
-  });
+  }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });;
 
   if (!readingBook) {
     throw new AppError(httpStatus.NOT_FOUND, "No reading book found");
