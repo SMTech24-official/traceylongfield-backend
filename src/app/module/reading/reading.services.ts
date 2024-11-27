@@ -6,7 +6,7 @@ import httpStatus from "http-status";
 import { Book } from "../book/book.model";
 import { User } from "../users/user.model";
 import{ObjectId} from "mongodb"
-import { IAddBook } from "../book/book.interface";
+import { Reading_status } from "../../utils/constant";
 
 const startReading = async (bookId: string, user: JwtPayload) => {
   const IsBook=await Book.findById(bookId);
@@ -41,7 +41,7 @@ const startReading = async (bookId: string, user: JwtPayload) => {
   const payload = {
     bookId,
     userId: user.userId,
-    readingStatus: "reading",
+    readingStatus:Reading_status.reading,
   };
   const result = await ReadingBook.create(payload);
   return result;
@@ -57,7 +57,7 @@ const finishReading = async (readingBookId: string, user: JwtPayload) => {
  
   const readingBook = await ReadingBook.findOneAndUpdate(
     {_id:readingBookId},  // Filter condition
-    { readingStatus: "paused" },                      // Update action
+    { readingStatus:Reading_status.paused},                      // Update action
     { new: true }                                     // Option to return the updated document
   );
   if (!readingBook) {
@@ -77,7 +77,7 @@ const completeReview = async (user: JwtPayload, readingBookId: string) => {
 
   const readingBook = await ReadingBook.findByIdAndUpdate(
     { userId:user.userId,  _id:readingBookId },
-    { readingStatus: "finished" },
+    { readingStatus: Reading_status.finished },
     { new: true }
   );
   if (!readingBook) {
@@ -95,7 +95,7 @@ const getToReviewedBook = async (user: JwtPayload) => {
   }
   const readingBook = await ReadingBook.find({
     userId: user.userId,
-    readingStatus: "reading",
+    readingStatus: Reading_status.reading,
   }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });;
 
   if (!readingBook) {
@@ -109,7 +109,7 @@ const getToReviewedBook = async (user: JwtPayload) => {
 const getToReviewOverDueBook = async (user: JwtPayload) => {
   const readingBook = await ReadingBook.find({
     userId: user.userId,
-    readingStatus: "paused",
+    readingStatus: Reading_status.paused,
   }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });;
 
   if (!readingBook) {
@@ -123,7 +123,7 @@ const getToReviewOverDueBook = async (user: JwtPayload) => {
 const getCompleteReview = async (user: JwtPayload) => {
     const readingBook = await ReadingBook.find({
       userId: user.userId,
-      readingStatus: "finished",
+      readingStatus: Reading_status.finished,
     }).populate({path:"bookId" }).populate({path:"userId",select:"-password" });
   
     if (!readingBook) {

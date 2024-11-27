@@ -56,6 +56,7 @@ const activity_model_1 = require("../activity/activity.model");
 const mongoose_1 = require("mongoose");
 const reading_model_1 = require("../reading/reading.model");
 const points_model_1 = require("../points/points.model");
+const constant_1 = require("../../utils/constant");
 const createAdmin = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     payload.password = yield argon2.hash(payload.password);
     payload.role = "admin";
@@ -146,7 +147,7 @@ const rejectBook = (bookId, reason) => __awaiter(void 0, void 0, void 0, functio
 // get all review
 const getAllReview = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield reading_model_1.ReadingBook.find({
-        readingStatus: "finish",
+        readingStatus: constant_1.Reading_status.finished,
         isApproved: false,
     })
         .populate("userId", "-password")

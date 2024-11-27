@@ -10,6 +10,7 @@ import { ReadingBook } from "../reading/reading.model";
 import { Point } from "../points/points.model";
 import { IAddBook } from "../book/book.interface";
 import { ObjectId } from 'mongoose';
+import { Reading_status } from "../../utils/constant";
 
 const createAdmin = async (payload: IUser) => {
   payload.password = await argon2.hash(payload.password);
@@ -137,7 +138,7 @@ const rejectBook = async (bookId: string, reason: string) => {
 
 const getAllReview = async () => {
   const result = await ReadingBook.find({
-    readingStatus: "finish",
+    readingStatus: Reading_status.finished,
     isApproved: false,
   })
     .populate("userId", "-password")
