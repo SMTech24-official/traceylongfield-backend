@@ -16,4 +16,5 @@ router.get("/:id", (0, auth_1.default)(constant_1.USER_ROLE.author, constant_1.U
 router.post("/start-reading/:id", (0, auth_1.default)(constant_1.USER_ROLE.author), reading_controller_1.readingController.startReading);
 router.patch("/finish-reading/:id", (0, auth_1.default)(constant_1.USER_ROLE.author), reading_controller_1.readingController.finishReading);
 router.patch("/give-review/:id", (0, auth_1.default)(constant_1.USER_ROLE.author), reading_controller_1.readingController.completeReview);
+router.get("/my-book-review/all", (0, auth_1.default)(constant_1.USER_ROLE.admin, constant_1.USER_ROLE.author, constant_1.USER_ROLE.superAdmin), reading_controller_1.readingController.myBookReviewHistory);
 exports.ReadingRouter = router;

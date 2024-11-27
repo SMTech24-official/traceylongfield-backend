@@ -18,6 +18,7 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const book_model_1 = require("../book/book.model");
 const user_model_1 = require("../users/user.model");
+const mongodb_1 = require("mongodb");
 const startReading = (bookId, user) => __awaiter(void 0, void 0, void 0, function* () {
     const IsBook = yield book_model_1.Book.findById(bookId);
     if (!IsBook) {
@@ -122,6 +123,46 @@ const getSingleReview = (user, reviewId) => __awaiter(void 0, void 0, void 0, fu
     }).populate({ path: "bookId" }).populate({ path: "userId", select: "-password" });
     return readingBook;
 });
+const myBookReviewHistory = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    // console.log(user)
+    // console.log(await ReadingBook.find())
+    const result = yield book_model_1.Book.find({ userId: new mongodb_1.ObjectId(user.userId) });
+    const bookIds = result.map(book => book._id);
+    const book = yield reading_model_1.ReadingBook.find();
+    const reviewsCountWithBookDetails = yield reading_model_1.ReadingBook.aggregate([
+        {
+            $match: {
+                bookId: { $in: bookIds }, // Match any bookId in the bookIds array
+                isApproved: true // Only include approved reviews
+            }
+        },
+        {
+            $group: {
+                _id: "$bookId", // Group by bookId
+                reviewCount: { $sum: 1 } // Count the reviews for each bookId
+            }
+        },
+        {
+            $lookup: {
+                from: "books", // The collection to join with (in this case, 'books')
+                localField: "_id", // The field from the current collection (ReadingBook)
+                foreignField: "_id", // The field from the 'books' collection
+                as: "bookDetails" // Name of the new field where book details will be stored
+            }
+        },
+        {
+            $unwind: "$bookDetails" // Flatten the bookDetails array, since there will be only one match per bookId
+        },
+        {
+            $project: {
+                _id: 0, // Don't include _id in the final result
+                bookTitle: "$bookDetails.title", // Include only the title of the book
+                reviewCount: 1 // Include the review count
+            }
+        }
+    ]);
+    return reviewsCountWithBookDetails;
+});
 exports.readingService = {
     startReading,
     finishReading,
@@ -129,5 +170,6 @@ exports.readingService = {
     getToReviewOverDueBook,
     completeReview,
     getCompleteReview,
-    getSingleReview
+    getSingleReview,
+    myBookReviewHistory
 };

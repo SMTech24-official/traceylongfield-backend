@@ -10,7 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activityServices = void 0;
+const activity_model_1 = require("./activity.model");
 const getAllMyNotifications = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield activity_model_1.Notification.find({ user: user.userId }).sort({ createdAt: "desc" }).populate("user", "-password");
+    return result;
 });
 exports.activityServices = {
     getAllMyNotifications

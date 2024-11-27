@@ -94,6 +94,17 @@ const getSingleReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0
         data: result,
     });
 }));
+const myBookReviewHistory = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const reviewId = req.params.id;
+    const user = req.user;
+    const result = yield reading_services_1.readingService.myBookReviewHistory(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "get review history successfully!",
+        data: result,
+    });
+}));
 exports.readingController = {
     startReading,
     finishReading,
@@ -101,5 +112,6 @@ exports.readingController = {
     getToReviewOverDueBook,
     completeReview,
     getCompleteReview,
-    getSingleReview
+    getSingleReview,
+    myBookReviewHistory
 };

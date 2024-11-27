@@ -9,5 +9,5 @@ const activity_controller_1 = require("./activity.controller");
 const auth_1 = __importDefault(require("../../middlewares/auth"));
 const constant_1 = require("../../utils/constant");
 const router = (0, express_1.Router)();
-router.get('/get-all', (0, auth_1.default)(constant_1.USER_ROLE.admin, constant_1.USER_ROLE.author, constant_1.USER_ROLE.superAdmin), activity_controller_1.activityController.getAllMyNotifications);
+router.get('/get-all/all', (0, auth_1.default)(constant_1.USER_ROLE.admin, constant_1.USER_ROLE.author, constant_1.USER_ROLE.superAdmin), activity_controller_1.activityController.getAllMyNotifications);
 exports.activityRouter = router;

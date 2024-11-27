@@ -14,7 +14,7 @@ router.post('/add-knowledge-hub-video', (0, auth_1.default)(constant_1.USER_ROLE
 // delete video
 router.delete('/delete-video', (0, auth_1.default)(constant_1.USER_ROLE.admin), knowledgeHub_controller_1.knowledgeHubController.deleteKnowledgeHubVideo);
 // gel video 
-router.get('/get-video', (0, auth_1.default)(constant_1.USER_ROLE.admin), knowledgeHub_controller_1.knowledgeHubController.getKnowledgeHubVideo);
+router.get('/get-video', (0, auth_1.default)(constant_1.USER_ROLE.admin, constant_1.USER_ROLE.author), knowledgeHub_controller_1.knowledgeHubController.getKnowledgeHubVideo);
 // update video
 router.patch('/update-video/:id', (0, auth_1.default)(constant_1.USER_ROLE.admin), knowledgeHub_controller_1.knowledgeHubController.updateKnowledgeHubVideo);
 exports.KnowledgeHubRouter = router;
