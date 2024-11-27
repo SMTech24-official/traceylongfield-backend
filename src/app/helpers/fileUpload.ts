@@ -120,7 +120,7 @@ const uploadToDigitalOcean = async (
     throw error;
   }
 };
-export const fileUploader = {
+export const  fileUploader = {
   upload,
   uploadSingle,
   uploadMultiple,
