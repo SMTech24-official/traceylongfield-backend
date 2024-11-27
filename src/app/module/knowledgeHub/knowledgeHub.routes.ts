@@ -13,7 +13,7 @@ router.post('/add-knowledge-hub-video',auth(USER_ROLE.admin),knowledgeHubControl
 router.delete('/delete-video',auth(USER_ROLE.admin), knowledgeHubController.deleteKnowledgeHubVideo);
 // gel video 
 
-router.get('/get-video',auth(USER_ROLE.admin), knowledgeHubController.getKnowledgeHubVideo);
+router.get('/get-video',auth(USER_ROLE.admin,USER_ROLE.author), knowledgeHubController.getKnowledgeHubVideo);
 // update video
 
 router.patch('/update-video/:id',auth(USER_ROLE.admin), knowledgeHubController.updateKnowledgeHubVideo);

@@ -87,7 +87,7 @@ const myBookReviewHistory = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "get review successfully!",
+    message: "get review history successfully!",
     data: result,
   });
 });

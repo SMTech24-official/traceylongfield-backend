@@ -5,6 +5,8 @@ import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { Book } from "../book/book.model";
 import { User } from "../users/user.model";
+import{ObjectId} from "mongodb"
+import { IAddBook } from "../book/book.interface";
 
 const startReading = async (bookId: string, user: JwtPayload) => {
   const IsBook=await Book.findById(bookId);
@@ -143,14 +145,44 @@ const getCompleteReview = async (user: JwtPayload) => {
 
 
   const myBookReviewHistory=async(user:JwtPayload)=>{
-   const result = await ReadingBook.aggregate([
-      { $match: { userId: user.userId } }, // Match the userId
-      { $group: { 
-        _id: "$userId", // Group by userId
-        reviews: { $push: "$review" } // Collect the reviews into an array
-      }}
-    ]);
-    console.log(result);
+    // console.log(user)
+    // console.log(await ReadingBook.find())
+   const result=await Book.find({userId:new ObjectId(user.userId)})
+   const bookIds = result.map(book => book._id)
+   const book=await ReadingBook.find()
+   const reviewsCountWithBookDetails = await ReadingBook.aggregate([
+    {
+      $match: {
+        bookId: { $in: bookIds }, // Match any bookId in the bookIds array
+        isApproved: true // Only include approved reviews
+      }
+    },
+    {
+      $group: {
+        _id: "$bookId", // Group by bookId
+        reviewCount: { $sum: 1 } // Count the reviews for each bookId
+      }
+    },
+    {
+      $lookup: {
+        from: "books", // The collection to join with (in this case, 'books')
+        localField: "_id", // The field from the current collection (ReadingBook)
+        foreignField: "_id", // The field from the 'books' collection
+        as: "bookDetails" // Name of the new field where book details will be stored
+      }
+    },
+    {
+      $unwind: "$bookDetails" // Flatten the bookDetails array, since there will be only one match per bookId
+    },
+    {
+      $project: {
+        _id: 0, // Don't include _id in the final result
+        bookTitle: "$bookDetails.title", // Include only the title of the book
+        reviewCount: 1 // Include the review count
+      }
+    }
+  ]);
+    return reviewsCountWithBookDetails;
   }
 export const readingService = {
   startReading,

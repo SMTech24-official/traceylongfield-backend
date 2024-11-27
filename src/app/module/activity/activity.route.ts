@@ -6,7 +6,7 @@ const router=Router()
 
 
 
-router.get('/get-all',auth(USER_ROLE.admin,USER_ROLE.author,USER_ROLE.superAdmin), activityController.getAllMyNotifications)
+router.get('/get-all/all',auth(USER_ROLE.admin,USER_ROLE.author,USER_ROLE.superAdmin), activityController.getAllMyNotifications)
 
 
 
