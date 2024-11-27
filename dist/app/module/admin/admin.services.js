@@ -155,7 +155,6 @@ const getAllReview = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 // get single review
 const getSingleReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("getSingleReview");
     const result = yield reading_model_1.ReadingBook.findById(id)
         .populate("userId", "-password")
         .populate("bookId");
@@ -204,7 +203,6 @@ const approvedReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 // reject review
 const rejectReview = (id, reason) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(id, reason);
     const session = yield (0, mongoose_1.startSession)();
     try {
         session.startTransaction();
@@ -252,12 +250,10 @@ const getAllBookBasedUsers = (query, id) => __awaiter(void 0, void 0, void 0, fu
     const page = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
     const skip = (page - 1) * limit;
-    console.log(id);
     const baseQuery = {};
     if (query.status) {
         baseQuery.status = query.status;
     }
-    console.log(baseQuery);
     const result = yield book_model_1.Book.find(Object.assign({ userId: id }, baseQuery))
         .skip(skip)
         .limit(limit);

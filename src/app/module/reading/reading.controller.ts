@@ -80,6 +80,17 @@ const getSingleReview = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const myBookReviewHistory = catchAsync(async (req, res) => {
+  const reviewId = req.params.id;
+  const user = req.user;
+  const result = await readingService.myBookReviewHistory(user);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "get review successfully!",
+    data: result,
+  });
+});
 export const readingController = {
   startReading,
   finishReading,
@@ -87,5 +98,6 @@ export const readingController = {
   getToReviewOverDueBook,
   completeReview,
   getCompleteReview,
-  getSingleReview
+  getSingleReview,
+  myBookReviewHistory
 };

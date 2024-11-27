@@ -67,7 +67,7 @@ const finishReading = async (readingBookId: string, user: JwtPayload) => {
 
 // complete review
 const completeReview = async (user: JwtPayload, readingBookId: string) => {
-    console.log(user,readingBookId)
+    
   const ExistUser = await User.findOne({ _id: user.userId });
   if (!ExistUser) {
     throw new AppError(httpStatus.FORBIDDEN, "User not found");
@@ -139,6 +139,19 @@ const getCompleteReview = async (user: JwtPayload) => {
     return readingBook
   }
 
+
+
+
+  const myBookReviewHistory=async(user:JwtPayload)=>{
+   const result = await ReadingBook.aggregate([
+      { $match: { userId: user.userId } }, // Match the userId
+      { $group: { 
+        _id: "$userId", // Group by userId
+        reviews: { $push: "$review" } // Collect the reviews into an array
+      }}
+    ]);
+    console.log(result);
+  }
 export const readingService = {
   startReading,
   finishReading,
@@ -146,5 +159,6 @@ export const readingService = {
   getToReviewOverDueBook,
   completeReview,
   getCompleteReview,
-  getSingleReview
+  getSingleReview,
+  myBookReviewHistory
 };

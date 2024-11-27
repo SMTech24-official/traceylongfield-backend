@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
 const config_1 = __importDefault(require("../config"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const AppError_1 = __importDefault(require("../errors/AppError"));
+const http_status_1 = __importDefault(require("http-status"));
 const sendEmail = (to, html, subject) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const transporter = nodemailer_1.default.createTransport({
@@ -36,7 +38,7 @@ const sendEmail = (to, html, subject) => __awaiter(void 0, void 0, void 0, funct
         });
     }
     catch (error) {
-        console.log(error);
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, error.message);
     }
 });
 exports.sendEmail = sendEmail;

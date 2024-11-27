@@ -114,7 +114,6 @@ const rejectReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
 }));
 // get all users
 const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("getAllUsers");
     const result = yield admin_services_1.adminServices.getAllUsers();
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,

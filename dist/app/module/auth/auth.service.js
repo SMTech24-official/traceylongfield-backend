@@ -51,7 +51,6 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!user) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
     }
-    console.log(user);
     // checking if the user is already deleted
     const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
     if (!isVerified) {

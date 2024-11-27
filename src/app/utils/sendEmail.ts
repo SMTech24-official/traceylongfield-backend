@@ -1,6 +1,8 @@
 import config from "../config";
 
 import  nodemailer from "nodemailer"
+import AppError from "../errors/AppError";
+import httpStatus from "http-status";
 
 export const sendEmail = async (to: string, html: string,subject:string) => {
  
@@ -24,8 +26,8 @@ export const sendEmail = async (to: string, html: string,subject:string) => {
     html, // html body
   });
   
- } catch (error) {
-  console.log(error)
+ } catch (error:any) {
+  throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,error.message)
  }
 
 };

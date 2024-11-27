@@ -4,7 +4,7 @@ import { INotification } from "./activity.interface";
 // Mongoose schema
 const NotificationSchema: Schema = new Schema(
     {
-      user: { type: String, required: true }, // Reference to the user, e.g., user ID or username
+      user: { type: Schema.Types.ObjectId,ref:"User",required: true }, // Reference to the user, e.g., user ID or username
       message: { type: String, required: true }, // Notification message
     },
     {

@@ -1,4 +1,7 @@
+import{Types} from "mongoose"
+
+
 export interface INotification {
-  user: string;
+  user: Types.ObjectId;
   message: string;
 }

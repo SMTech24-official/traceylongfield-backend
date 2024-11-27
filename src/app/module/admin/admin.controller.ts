@@ -104,7 +104,7 @@ const getSingleBook = catchAsync(async (req, res) => {
 
  // get all users
   const getAllUsers = catchAsync(async (req, res) => {
-    console.log("getAllUsers")
+   
     const result = await adminServices.getAllUsers();
     sendResponse(res, {
       statusCode: httpStatus.OK,
