@@ -163,53 +163,75 @@ const approvedReview = async (id: string) => {
   const session = await startSession();
   try {
     session.startTransaction();
+    
+    // Find the review by ID
     const review = await ReadingBook.findById(id);
-
     if (!review) {
       throw new AppError(httpStatus.NOT_FOUND, "Review not found");
     }
+
+    // Check if the review is already approved
     if (review.isApproved) {
       throw new AppError(
         httpStatus.FORBIDDEN,
         "This review is already approved"
       );
     }
+
+    // Find the user who wrote the review
     const reviewUser = await User.findById(review.userId);
     if (!reviewUser) {
       throw new AppError(httpStatus.NOT_FOUND, "User not found");
     }
+
+    // Find the book related to the review
     const reviewBook = await Book.findById(review.bookId);
     if (!reviewBook) {
       throw new AppError(httpStatus.NOT_FOUND, "Book not found");
     }
-   
+
+    // Fetch the points related to the book type
     const reviewPoints = await Point.findOne({ type: reviewBook.bookType });
-  
     if (!reviewPoints) {
       throw new AppError(httpStatus.NOT_FOUND, "Points not found");
     }
+
+    // Increment the user's points
     const updateUserPoints = await User.findByIdAndUpdate(
       reviewUser._id,
-      { points: reviewPoints.points },
-      { new: true, session }
+      { $inc: { points: reviewPoints.points } },  // Increment the points field
+      { new: true, session }  // `new: true` ensures the updated document is returned
     );
 
+    // Update the review to mark it as approved
     const updateReview = await ReadingBook.findByIdAndUpdate(
       id,
       { isApproved: true },
       { new: true, session }
     );
+
+    // Increment the review count for the book
+    const updateBook = await Book.findByIdAndUpdate(
+      reviewBook._id,
+      { $inc: { reviewCount: 1 } },  // Increment the review count
+      { new: true, session }
+    );
+
+    // Commit the transaction
     await session.commitTransaction();
     await session.endSession();
-    return updateReview;
+
+    return updateReview;  // Return the updated review object
   } catch (error: any) {
+    // If an error occurs, abort the transaction
     if (error) {
+      await session.abortTransaction();
+      await session.endSession();
       throw new AppError(httpStatus.FORBIDDEN, error.message);
     }
-    await session.abortTransaction();
-    await session.endSession();
   }
 };
+
 // reject review
 
 const rejectReview = async (id: string, reason: string) => {

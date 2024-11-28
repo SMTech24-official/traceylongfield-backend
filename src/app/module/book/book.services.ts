@@ -7,6 +7,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { Notification } from "../activity/activity.model";
 import { fileUploader } from "../../helpers/fileUpload";
 import { Point } from "../points/points.model";
+import { ReadingBook } from "../reading/reading.model";
 
 const insertBookIntoDB=async(req:Request)=>{
   const user = req.user;
@@ -115,28 +116,42 @@ const getAllMyBooks = async (page: number, limit: number, status: string,user:Jw
 
 
 const getAllBooks = async (page: number, limit: number, user:JwtPayload,genre:string) => {
-    try {
-        const query: any = { userId: { $ne: user.userId },status:"live" ,isReadyForReview: true };
-        if (genre) {
-          query.genre = { $regex: new RegExp(`^${genre}$`, 'i') }; // Case-insensitive exact match
-        }
-        
+
+    // Fetch completed review books for the user
+    const completedReviewBook = await ReadingBook.find({ userId: user.userId, isApproved: true });
   
-      const books = await Book.find(query)
-        .populate('userId') // Assuming 'userId' is the field in your schema
-        .sort({ createdAt: -1 }) // Sort by newest first
-        .skip((page - 1) * limit) // Pagination: skip documents for previous pages
-        .limit(limit); // Limit the number of results per page
+    // Extract the bookIds from the completedReviewBook array
+    const completedBookIds = completedReviewBook.map((book: any) => book.bookId);
   
-      if (!books) {
-        throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to get books");
-      }
+    // Define the query for finding books that are ready for review
+    const query: any = {
+      userId: { $ne: user.userId },  // Ensure books are not from the same user
+      status: "live",
+      isReadyForReview: true,
+      _id: { $nin: completedBookIds }  // Exclude completed books
+    };
   
-      return books;
-    } catch (error:any) {
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "An error occurred");
+    // Apply genre filtering if provided
+    if (genre) {
+      query.genre = { $regex: new RegExp(`^${genre}$`, 'i') };  // Case-insensitive exact match
     }
-  };
+  
+    // Fetch the books from the database with pagination and sorting
+    const books = await Book.find(query)
+      .populate('userId')  // Assuming 'userId' is the field in your schema
+      .sort({ createdAt: -1 })  // Sort by newest first
+      .skip((page - 1) * limit)  // Pagination: skip documents for previous pages
+      .limit(limit);  // Limit the number of results per page
+  
+    // If no books are found, throw an error
+    if (books.length === 0) {
+      return {message:"No books found"}
+    }
+  
+    return books;
+  
+
+}  
 
 
   //get for reviewed 
