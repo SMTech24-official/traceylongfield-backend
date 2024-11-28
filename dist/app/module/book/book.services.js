@@ -19,6 +19,7 @@ const book_model_1 = require("./book.model");
 const activity_model_1 = require("../activity/activity.model");
 const fileUpload_1 = require("../../helpers/fileUpload");
 const points_model_1 = require("../points/points.model");
+const reading_model_1 = require("../reading/reading.model");
 const insertBookIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const files = req.files;
@@ -103,24 +104,32 @@ const getAllMyBooks = (page, limit, status, user) => __awaiter(void 0, void 0, v
     }
 });
 const getAllBooks = (page, limit, user, genre) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const query = { userId: { $ne: user.userId }, status: "live", isReadyForReview: true };
-        if (genre) {
-            query.genre = { $regex: new RegExp(`^${genre}$`, 'i') }; // Case-insensitive exact match
-        }
-        const books = yield book_model_1.Book.find(query)
-            .populate('userId') // Assuming 'userId' is the field in your schema
-            .sort({ createdAt: -1 }) // Sort by newest first
-            .skip((page - 1) * limit) // Pagination: skip documents for previous pages
-            .limit(limit); // Limit the number of results per page
-        if (!books) {
-            throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Failed to get books");
-        }
-        return books;
+    // Fetch completed review books for the user
+    const completedReviewBook = yield reading_model_1.ReadingBook.find({ userId: user.userId, isApproved: true });
+    // Extract the bookIds from the completedReviewBook array
+    const completedBookIds = completedReviewBook.map((book) => book.bookId);
+    // Define the query for finding books that are ready for review
+    const query = {
+        userId: { $ne: user.userId }, // Ensure books are not from the same user
+        status: "live",
+        isReadyForReview: true,
+        _id: { $nin: completedBookIds } // Exclude completed books
+    };
+    // Apply genre filtering if provided
+    if (genre) {
+        query.genre = { $regex: new RegExp(`^${genre}$`, 'i') }; // Case-insensitive exact match
     }
-    catch (error) {
-        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, error.message || "An error occurred");
+    // Fetch the books from the database with pagination and sorting
+    const books = yield book_model_1.Book.find(query)
+        .populate('userId') // Assuming 'userId' is the field in your schema
+        .sort({ createdAt: -1 }) // Sort by newest first
+        .skip((page - 1) * limit) // Pagination: skip documents for previous pages
+        .limit(limit); // Limit the number of results per page
+    // If no books are found, throw an error
+    if (books.length === 0) {
+        return { message: "No books found" };
     }
+    return books;
 });
 //get for reviewed 
 const getReviewedBooks = (id) => __awaiter(void 0, void 0, void 0, function* () {

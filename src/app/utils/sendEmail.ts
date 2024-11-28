@@ -5,14 +5,13 @@ import AppError from "../errors/AppError";
 import httpStatus from "http-status";
 
 export const sendEmail = async (to: string, html: string,subject:string) => {
- 
  try {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false,
     auth: {
-      // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+      // TODO: replace `user` and `pass` values from <https://forwardemail.net>   
       user: config.mail,
       pass: config.mail_pass,
     },

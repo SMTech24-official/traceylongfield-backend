@@ -169,37 +169,51 @@ const approvedReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield (0, mongoose_1.startSession)();
     try {
         session.startTransaction();
+        // Find the review by ID
         const review = yield reading_model_1.ReadingBook.findById(id);
         if (!review) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Review not found");
         }
+        // Check if the review is already approved
         if (review.isApproved) {
             throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This review is already approved");
         }
+        // Find the user who wrote the review
         const reviewUser = yield user_model_1.User.findById(review.userId);
         if (!reviewUser) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
         }
+        // Find the book related to the review
         const reviewBook = yield book_model_1.Book.findById(review.bookId);
         if (!reviewBook) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Book not found");
         }
+        // Fetch the points related to the book type
         const reviewPoints = yield points_model_1.Point.findOne({ type: reviewBook.bookType });
         if (!reviewPoints) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Points not found");
         }
-        const updateUserPoints = yield user_model_1.User.findByIdAndUpdate(reviewUser._id, { points: reviewPoints.points }, { new: true, session });
+        // Increment the user's points
+        const updateUserPoints = yield user_model_1.User.findByIdAndUpdate(reviewUser._id, { $inc: { points: reviewPoints.points } }, // Increment the points field
+        { new: true, session } // `new: true` ensures the updated document is returned
+        );
+        // Update the review to mark it as approved
         const updateReview = yield reading_model_1.ReadingBook.findByIdAndUpdate(id, { isApproved: true }, { new: true, session });
+        // Increment the review count for the book
+        const updateBook = yield book_model_1.Book.findByIdAndUpdate(reviewBook._id, { $inc: { reviewCount: 1 } }, // Increment the review count
+        { new: true, session });
+        // Commit the transaction
         yield session.commitTransaction();
         yield session.endSession();
-        return updateReview;
+        return updateReview; // Return the updated review object
     }
     catch (error) {
+        // If an error occurs, abort the transaction
         if (error) {
+            yield session.abortTransaction();
+            yield session.endSession();
             throw new AppError_1.default(http_status_1.default.FORBIDDEN, error.message);
         }
-        yield session.abortTransaction();
-        yield session.endSession();
     }
 });
 // reject review
