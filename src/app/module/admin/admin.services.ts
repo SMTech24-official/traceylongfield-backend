@@ -193,6 +193,7 @@ const approvedReview = async (id: string) => {
       { points: reviewPoints.points },
       { new: true, session }
     );
+
     const updateReview = await ReadingBook.findByIdAndUpdate(
       id,
       { isApproved: true },

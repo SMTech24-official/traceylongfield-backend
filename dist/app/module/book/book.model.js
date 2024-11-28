@@ -11,6 +11,7 @@ const BookSchema = new mongoose_1.Schema({
     bookFormate: { type: String, required: true },
     bookCover: { type: String, required: true },
     bookPdf: { type: String },
+    reviewCount: { type: Number, default: 0 },
     status: { type: String, enum: ["pending", "live"] },
     genre: { type: String, required: true },
     isReadyForReview: { type: Boolean, default: false },

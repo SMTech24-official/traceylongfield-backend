@@ -10,6 +10,7 @@ export interface IAddBook{
     bookCover:string;
     bookPdf?:string;
     genre:string;
+    reviewCount:number;
     status:"pending"|"live",
     isReadyForReview:boolean;
     bookType:string;
