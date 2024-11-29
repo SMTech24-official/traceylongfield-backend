@@ -13,14 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.paymentService = exports.checkExpiredSubscriptions = exports.createOrFetchStripeCustomer = void 0;
-const config_1 = __importDefault(require("../../config"));
 const stripe_1 = __importDefault(require("stripe"));
 const user_model_1 = require("../users/user.model");
 const payment_model_1 = require("./payment.model");
 const payment_constant_1 = require("./payment.constant");
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
-const stripe = new stripe_1.default(config_1.default.stripe_secret_key);
+const stripe = new stripe_1.default("sk_test_51QA6IkFGNtvHx4UtPq0S9a91GR9VUfXVIEptfIdma8LX8ITVSKu5ehK3MclRD9qDN5lYgJZCXp8RRWkKKWKEcP98004GHpKW2R");
 const createOrFetchStripeCustomer = (userEmail) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Fetch the user from the database
@@ -215,10 +214,30 @@ const deletePaymentDataFromDB = (id) => __awaiter(void 0, void 0, void 0, functi
     }
     return result;
 });
+const buySubscription = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const YOUR_DOMAIN = "http://localhost:3000";
+    console.log("Your domain");
+    const session = yield stripe.checkout.sessions.create({
+        line_items: [
+            {
+                // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                price: 'price_1QQNW1FGNtvHx4UtxklB261z',
+                quantity: 1,
+            },
+        ],
+        mode: 'subscription',
+        success_url: `${YOUR_DOMAIN}/dashboard`,
+        cancel_url: `${YOUR_DOMAIN}/plans`,
+    });
+    //res.redirect(session.url)
+    console.log(session);
+    res.redirect(session.url);
+});
 exports.paymentService = {
     createSubscription,
     cancelSubscription,
     getAllPaymentDataIntoDB,
     deletePaymentDataFromDB,
     updateSubscriptionPlan,
+    buySubscription
 };

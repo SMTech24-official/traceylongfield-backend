@@ -6,7 +6,8 @@ const payload: any = {
   reviewerName: "Admin",
   amazonCountry: "US",
   amazonAuthorPageLink: "http://",
-    email: "akonhasan@gmail.com",
+   
+  email: "akonhasan@gmail.com",
     phoneNumber: "1234567890",
     password: "123456",
     role: USER_ROLE.admin,

@@ -17,5 +17,9 @@ router.get("/payments", paymentController.getAllPayments);
 router.put("/payments/update", paymentController.updateSubscriptionPlan);
 // Route to delete a payment by its ID
 router.delete("/payments/:id", paymentController.deletePayment);
+router.post("/create-checkout-session", paymentController.buySubscription);
+
+
+
 
 export const PaymentRoutes = router;

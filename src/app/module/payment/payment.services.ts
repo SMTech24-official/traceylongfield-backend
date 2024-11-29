@@ -8,7 +8,7 @@ import AppError from "../../errors/AppError";
 import httpStatus, { VARIANT_ALSO_NEGOTIATES } from "http-status";
 import { Request, Response } from "express";
 
-const stripe = new Stripe(config.stripe_secret_key as string);
+const stripe = new Stripe("sk_test_51QA6IkFGNtvHx4UtPq0S9a91GR9VUfXVIEptfIdma8LX8ITVSKu5ehK3MclRD9qDN5lYgJZCXp8RRWkKKWKEcP98004GHpKW2R" as string);
 
 export const createOrFetchStripeCustomer = async (
   userEmail: string
@@ -264,10 +264,34 @@ const deletePaymentDataFromDB = async (id: string) => {
   }
   return result;
 };
+
+
+
+const buySubscription = async (req :Request,res:Response)=>{
+  const YOUR_DOMAIN ="http://localhost:3000"
+  console.log("Your domain")
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+        price: 'price_1QQNW1FGNtvHx4UtxklB261z',
+        quantity: 1,
+        
+      },
+    ],
+    mode: 'subscription',
+    success_url: `${YOUR_DOMAIN}/dashboard`,
+    cancel_url: `${YOUR_DOMAIN}/plans`,
+});
+ //res.redirect(session.url)
+console.log(session)
+   res.redirect(session.url!);
+}
 export const paymentService = {
   createSubscription,
   cancelSubscription,
   getAllPaymentDataIntoDB,
   deletePaymentDataFromDB,
   updateSubscriptionPlan,
+  buySubscription
 };

@@ -92,10 +92,22 @@ const deletePayment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+// Hard delete payment by ID
+const buySubscription = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield payment_services_1.paymentService.buySubscription(req, res);
+    // sendResponse(res, {
+    //   statusCode: httpStatus.OK,
+    //   success: true,
+    //   message: "Payment record deleted successfully",
+    //   data: result,
+    // });
+}));
 exports.paymentController = {
     createSubscription,
     cancelSubscription,
     deletePayment,
     getAllPayments,
-    updateSubscriptionPlan
+    updateSubscriptionPlan,
+    buySubscription
 };
