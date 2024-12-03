@@ -24,7 +24,8 @@ app.use(
       "https://amz-book-review.vercel.app",
       "https://api.booksy.buzz",
       "https://amazon-book-review.vercel.app", // Only if you're directly interacting with Stripe API from your frontend
-      "http://amazon-book-review.vercel.app", // Only if you're directly interacting with Stripe API from your frontend
+      "http://amazon-book-review.vercel.app", 
+      "https://booksy.buzz"// Only if you're directly interacting with Stripe API from your frontend
     ],
     credentials: true,
   })
