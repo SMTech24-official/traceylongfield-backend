@@ -28,11 +28,23 @@ const app = (0, express_1.default)();
 //parsers
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({ origin: ['https://celebrated-kitten-1b6ccf.netlify.app', "http://localhost:3000", "https://amz-book-review.vercel.app"], credentials: true }));
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use((0, cors_1.default)({
+    origin: [
+        "https://celebrated-kitten-1b6ccf.netlify.app",
+        "http://localhost:3000", // only one instance of localhost
+        "https://amz-book-review.vercel.app",
+        "https://api.booksy.buzz",
+        "https://amazon-book-review.vercel.app", // Only if you're directly interacting with Stripe API from your frontend
+        "http://amazon-book-review.vercel.app",
+        "https://booksy.buzz" // Only if you're directly interacting with Stripe API from your frontend
+    ],
+    credentials: true,
+}));
 // application routes
-app.use('/api', routes_1.default);
-app.get('/', (req, res) => {
-    res.send('Hi Developer !');
+app.use("/api", routes_1.default);
+app.get("/", (req, res) => {
+    res.send("Hi Developer !");
 });
 // Serve static files from the uploads directory
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "..", "uploads")));

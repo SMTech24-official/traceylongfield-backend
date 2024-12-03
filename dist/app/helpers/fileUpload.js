@@ -17,15 +17,13 @@ const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const config_1 = __importDefault(require("../config"));
 const cloudinary_1 = require("cloudinary");
-//import fs from 'fs'
 const promises_1 = __importDefault(require("fs/promises"));
 const client_s3_1 = require("@aws-sdk/client-s3");
+const sharp_1 = __importDefault(require("sharp")); // Import sharp for image processing
 // /var/www/uploads
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
-        //  cb(null, path.join(process.cwd(), "/var/www/uploads"));
-        cb(null, path_1.default.join("/var/www", "uploads"));
-        //cb(null, path.join(process.cwd(), "uploads"));
+        cb(null, path_1.default.join(process.cwd(), "uploads"));
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
@@ -47,7 +45,7 @@ const uploadGuide = upload.fields([
 cloudinary_1.v2.config({
     cloud_name: 'dezfej6wq',
     api_key: config_1.default.cloudinary_api_key,
-    api_secret: config_1.default.cloudinary_api_secret
+    api_secret: config_1.default.cloudinary_api_secret,
 });
 // Configure DigitalOcean Spaces
 const s3Client = new client_s3_1.S3Client({
@@ -58,24 +56,7 @@ const s3Client = new client_s3_1.S3Client({
         secretAccessKey: process.env.DO_SPACE_SECRET_KEY || "",
     },
 });
-// const uploadToCloudinary = async (file: Express.Multer.File): Promise<any> => {
-//   return new Promise((resolve, reject) => {
-//     cloudinary.uploader.upload(
-//       file.path,
-//       { resource_type: 'auto' }, // Auto-detect file type
-//       (error, result) => {
-//         // Delete the local file after uploading
-//         fs.unlinkSync(file.path);
-//         if (error) {
-//           reject(error);
-//         } else {
-//           resolve(result);
-//         }
-//       }
-//     );
-//   });
-// };
-// Upload file to DigitalOcean Spaces
+// Upload file to DigitalOcean Spaces with image compression
 const uploadToDigitalOcean = (file) => __awaiter(void 0, void 0, void 0, function* () {
     if (!file) {
         throw new Error("File is required for uploading.");
@@ -83,12 +64,17 @@ const uploadToDigitalOcean = (file) => __awaiter(void 0, void 0, void 0, functio
     try {
         // Ensure the file exists before attempting to upload it
         yield promises_1.default.access(file.path);
+        // Compress the image before uploading
+        const compressedImageBuffer = yield (0, sharp_1.default)(file.path)
+            .resize(1500) // Resize the image to a max width of 1024px (you can adjust this)
+            .jpeg({ quality: 80 }) // Compress as JPEG with 80% quality (adjust as needed)
+            .toBuffer(); // Convert to buffer for upload
         // Prepare file upload parameters
         const Key = `buksybuzz/${Date.now()}_${file.originalname}`;
         const uploadParams = {
             Bucket: process.env.DO_SPACE_BUCKET || "",
             Key,
-            Body: yield promises_1.default.readFile(file.path),
+            Body: compressedImageBuffer, // Upload the compressed image buffer
             ACL: "public-read",
             ContentType: file.mimetype,
         };
@@ -114,6 +100,5 @@ exports.fileUploader = {
     uploadSingle,
     uploadMultiple,
     uploadGuide,
-    // uploadToCloudinary,
-    uploadToDigitalOcean
+    uploadToDigitalOcean,
 };

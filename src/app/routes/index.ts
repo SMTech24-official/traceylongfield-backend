@@ -10,6 +10,8 @@ import { AuthorGuide } from "../module/authorGuid/authorGuide.routes";
 import { PaymentRoutes } from "../module/payment/payment.routes";
 import { inviteRouter } from "../module/invite/invite.routes";
 import { activityRouter } from "../module/activity/activity.route";
+import { HomeReviewRouter } from "../module/homeReview/homeReview.routes";
+import { QuestionRouter } from "../module/question/question.routes";
 
 
 
@@ -54,6 +56,14 @@ const moduleRoutes=[
     {
         path: '/activity',
         route: activityRouter
+    },
+    {
+        path: '/homeReview',
+        route: HomeReviewRouter
+    },
+    {
+        path: '/questions',
+        route: QuestionRouter
     },
  
 ]
