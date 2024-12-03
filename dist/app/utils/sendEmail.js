@@ -24,7 +24,7 @@ const sendEmail = (to, html, subject) => __awaiter(void 0, void 0, void 0, funct
             port: 587,
             secure: false,
             auth: {
-                // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                // TODO: replace `user` and `pass` values from <https://forwardemail.net>   
                 user: config_1.default.mail,
                 pass: config_1.default.mail_pass,
             },
