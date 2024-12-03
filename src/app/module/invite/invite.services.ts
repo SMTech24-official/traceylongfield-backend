@@ -7,7 +7,7 @@ const getInvitationLink=async(user:JwtPayload)=>{
     const{userId,email,role}=user;
     // generate token 
     const token=createToken({userId,email,role},config.jwt_access_secret as string,"365d");
- const link=`${config.front_end_base_url}/register?token=${token}`
+ const link=`${config.front_end_base_url}/singup?token=${token}`
  return link
 }
 

@@ -62,7 +62,7 @@ const createSubscription = async (paymentData: CreatePaymentInput) => {
   // Create a Stripe subscription for the customer with a 1 month trial
   const subscription = await stripe.subscriptions.create({
     customer: customerId, // This now expects a string, which is customerId
-    items: [{ price: selectedPlan.priceId }],
+    items: [{ price: "price_1QQNW1FGNtvHx4UtxklB261z" }],
     default_payment_method: paymentMethodId,
     trial_period_days: 30, // Set the trial period for 1 month (30 days)
     expand: ["latest_invoice.payment_intent"],
