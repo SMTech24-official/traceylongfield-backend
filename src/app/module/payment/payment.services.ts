@@ -1,297 +1,148 @@
-import config from "../../config";
-import Stripe from "stripe";
-import { User } from "../users/user.model";
-import { Payment, PaymentInformation } from "./payment.model";
-import { plans } from "./payment.constant";
-import { CreatePaymentInput } from "./payment.interface";
+
 import AppError from "../../errors/AppError";
-import httpStatus, { VARIANT_ALSO_NEGOTIATES } from "http-status";
-import { Request, Response } from "express";
+import { User } from "../users/user.model";
+import { plans } from "./payment.constant";
 
-const stripe = new Stripe("sk_test_51QA6IkFGNtvHx4UtPq0S9a91GR9VUfXVIEptfIdma8LX8ITVSKu5ehK3MclRD9qDN5lYgJZCXp8RRWkKKWKEcP98004GHpKW2R" as string);
+const stripe = require('stripe')('sk_test_51QA6IkFGNtvHx4UtPq0S9a91GR9VUfXVIEptfIdma8LX8ITVSKu5ehK3MclRD9qDN5lYgJZCXp8RRWkKKWKEcP98004GHpKW2R');
+// const createPlanInStripe = async (payload: any) => {
+//   const {
+//     name,
+//     description,
+//     amount,
+//     currency,
+//     interval,
+//     interval_count,
+//     list,
+//   } = payload;
 
-export const createOrFetchStripeCustomer = async (
-  userEmail: string
-): Promise<string> => {
-  try {
-    // Fetch the user from the database
-    const user = await User.findOne({ email: userEmail });
+//   // Step 1: Create a product
+//   const product = await stripe.products.create({
+//     name,
+//     description,
+//   });
 
-    if (!user) {
-      throw new Error("User not found.");
-    }
+//   // Step 2: Create a price for the product
+//   const price = await stripe.prices.create({
+//     unit_amount: amount * 100,
+//     currency,
+//     product: product.id,
+//     recurring: {
+//       interval: interval,
+//        interval_count: interval_count,
+//     },
+//   });
 
-    // If the user already has a Stripe customer ID, return it
-    if (user.stripeCustomerId) {
-      return user.stripeCustomerId;
-    }
+//   const planInfo = await Plan.create({
+//     name,
+//     description,
+//     priceId: price.id,
+//     list,
+//     amount,
+//     currency,
+//     interval,
+//     interval_count,
+//   });
 
-    // Create a new Stripe customer if none exists
-    const customer = await stripe.customers.create({
-      email: user.email, // Assuming the user has an email field
-      metadata: { userEmail: user.email }, // Optionally, store more metadata
-    });
+//   return planInfo;
+// };
 
-    // Save the new Stripe customer ID in the MongoDB database
-    user.stripeCustomerId = customer.id;
-    await user.save();
+const createSubscriptionInStripe = async ( payload: any) => {
+  const { paymentMethodId, planType,email } = payload;
 
-    return customer.id; // Return the new Stripe customer ID (string)
-  } catch (error) {
-    console.error("Error creating or fetching Stripe customer:", error);
-    throw new Error("Failed to create or fetch Stripe customer.");
-  }
-};
+  const userInfo = await User.findOne({email:email});
 
-const createSubscription = async (paymentData: CreatePaymentInput) => {
-  const { planType, userEmail, paymentMethodId } = paymentData;
-
-  // Define the plans
   const selectedPlan = plans[planType as keyof typeof plans];
-
   if (!selectedPlan) {
-    throw new Error("Invalid plan type");
+    throw new AppError(400, "Invalid plan type");
+  }
+  const priceId = selectedPlan.priceId;
+  if (!userInfo) {
+    throw new AppError(404, "User not found");
   }
 
-  // Fetch or create Stripe customer ID (customerId is a string)
-  const customerId = await createOrFetchStripeCustomer(userEmail);
+  let customerId = userInfo.customerId;
+  if (!customerId) {
+    const customer = await stripe.customers.create({ email: userInfo.email });
+   
+    customerId = customer.id;
+    await User.findByIdAndUpdate(userInfo._id, { customerId: customer.id });
+  }
 
-  // Attach payment method to the customer
-  await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+  await stripe.paymentMethods.attach(paymentMethodId, {
+    customer: customerId,
+  });
 
-  // Create a Stripe subscription for the customer with a 1 month trial
+  await stripe.customers.update(customerId, {
+    invoice_settings: { default_payment_method: paymentMethodId },
+  });
+
   const subscription = await stripe.subscriptions.create({
-    customer: customerId, // This now expects a string, which is customerId
-    items: [{ price: selectedPlan.priceId as string}],
-    default_payment_method: paymentMethodId,
-    trial_period_days: 30, // Set the trial period for 1 month (30 days)
+    customer: customerId,
+    items: [{ price: priceId }],
     expand: ["latest_invoice.payment_intent"],
   });
 
-  const currentPeriodEnd = subscription.current_period_end;
+  const updateData = {
+    isPayment: true,
+    subscriptionId: subscription.id,
+    subscriptionPlane:planType,
+    priceId: priceId,
+    
+  };
+  await User.findByIdAndUpdate(userInfo._id, updateData);
+  return subscription;
+};
 
-  // Check for the payment intent in the latest invoice
-  const latestInvoice = subscription.latest_invoice;
-  const invoiceId =
-    latestInvoice && typeof latestInvoice !== "string"
-      ? latestInvoice.id
-      : latestInvoice;
-  const paymentIntent =
-    latestInvoice && typeof latestInvoice !== "string"
-      ? latestInvoice.payment_intent
-      : null;
+const cancelSubscriptionInStripe = async (subscriptionId: string) => {
+  const cancelSubcription = await stripe.subscriptions.cancel(subscriptionId);
 
-  if (!paymentIntent || paymentIntent === null) {
-    throw new Error("Payment intent not found in the latest invoice.");
+  return cancelSubcription;
+};
+
+const updateSubscriptionInStripe = async (payload: any, userId: string) => {
+  const { paymentMethodId,planType } = payload;
+  const userInfo = await User.findById(userId);
+  const customerId = userInfo?.customerId as string;
+
+  if (!userInfo) {
+    throw new AppError(404, "User not found");
   }
 
-  // Store subscription and payment details in the MongoDB database
-  const payment = await Payment.create({
-    userEmail,
-    paymentMethodId,
-    paymentStatus: "ACTIVE", // Active status, but the user is in trial
-    amount: selectedPlan.price,
-    paymentIntentId: subscription.id,
-    planType,
-    planDuration: selectedPlan.duration,
-    currency: "usd",
-    currentPeriodEnd: new Date(currentPeriodEnd * 1000), // Convert from Unix timestamp
+  const selectedPlan = plans[planType as keyof typeof plans];
+  console.log(planType,selectedPlan)
+  if (!selectedPlan) {
+    throw new AppError(400, "Invalid plan type");
+  }
+  const priceId = selectedPlan.priceId;
+  await stripe.paymentMethods.attach(paymentMethodId, {
+    customer: customerId,
   });
 
-  // Store additional payment information
-  const paymentInformation = await PaymentInformation.create({
-    buyerEmail: userEmail,
-    amount: selectedPlan.price,
-    currency: "usd",
-    transactionId: invoiceId,
-    customerId,
-    planType,
-    planDuration: selectedPlan.duration,
-    currentPeriodEnd: new Date(currentPeriodEnd * 1000), // Convert from Unix timestamp
+  await stripe.customers.update(customerId, {
+    invoice_settings: { default_payment_method: paymentMethodId },
   });
 
-  // Update user's payment status to active
-  await User.updateOne(
-    { email: userEmail },
-    { paymentStatus: true } // User is now subscribed
-  );
+  const subscription = await stripe.subscriptions.create({
+    customer: customerId,
+    items: [{ price: priceId }],
+    expand: ["latest_invoice.payment_intent"],
+  });
 
-  return paymentIntent;
+  const updateData = {
+    isPayment: true,
+    subscriptionId: subscription.id,
+    subscriptionPlane:planType,
+    priceId: priceId,
+  };
+  await User.findByIdAndUpdate(userId, updateData);
+  await stripe.subscriptions.cancel(userInfo.subscriptionId);
+  return subscription;
 };
 
 
-const cancelSubscription = async (
-  subscriptionId: string
-): Promise<Stripe.Subscription | null> => {
-  try {
-    // Cancel the Stripe subscription
-    const subscription = await stripe.subscriptions.cancel(subscriptionId);
+export const paymentServices = {
 
-    // If the subscription was successfully canceled, update the database
-    if (subscription && subscription.status === "canceled") {
-      // Update the payment status to "EXPIRED" for all payments with the matching subscription ID
-      await Payment.updateMany(
-        { paymentIntentId: subscription.id },
-        { paymentStatus: "EXPIRED" }
-      );
-
-      // Update the user's payment status to false (no active subscription)
-      await User.updateMany(
-        { "subscriptions.subscriptionId": subscriptionId }, // assuming your User model has subscriptions array
-        { paymentStatus: false }
-      );
-    }
-
-    return subscription;
-  } catch (error) {
-    console.error("Error canceling subscription:", error);
-    throw new Error(
-      `Failed to cancel the subscription with ID: ${subscriptionId}`
-    );
-  }
-};
-
-const updateSubscriptionPlan = async (data: {
-  userEmail: string;
-  newPlanType: string;
-}): Promise<Stripe.Subscription> => {
-  try {
-    const { userEmail, newPlanType } = data;
-    // Define the plans
-    const newPlan = plans[newPlanType as keyof typeof plans];
-    if (!newPlan) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Invalid plan type.");
-    }
-
-    // Fetch the user from the database
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, "User not found.");
-    }
-
-    // Check if the user has an active subscription
-    const existingPayment = await Payment.findOne({
-      userEmail,
-      paymentStatus: "ACTIVE",
-    });
-    if (!existingPayment) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        "No active subscription found for the user."
-      );
-    }
-
-    // Update the subscription in Stripe
-    const updatedSubscription = await stripe.subscriptions.update(
-      existingPayment.paymentIntentId!, // Stripe subscription ID
-      {
-        items: [
-          {
-            id: existingPayment.paymentIntentId, // The subscription item ID
-            price: newPlan.priceId, // The new plan's price ID
-          },
-        ],
-        proration_behavior: "create_prorations", // Adjusts billing for the change
-      }
-    );
-
-    // Update the database with the new plan details
-    await Payment.updateOne(
-      { userEmail, paymentIntentId: existingPayment.paymentIntentId },
-      {
-        planType: newPlanType,
-        planDuration: newPlan.duration,
-        amount: newPlan.price,
-        currentPeriodEnd: new Date(
-          updatedSubscription.current_period_end * 1000
-        ),
-      }
-    );
-
-    return updatedSubscription;
-  } catch (error: any) {
-    console.error("Error updating subscription plan:", error);
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
-  }
-};
-
-export const checkExpiredSubscriptions = async () => {
-  const currentTime = new Date();
-
-  try {
-    // Fetch all active subscriptions where currentPeriodEnd has passed
-    const expiredSubscriptions = await Payment.find({
-      paymentStatus: "ACTIVE",
-      currentPeriodEnd: { $lte: currentTime }, // Check if currentPeriodEnd is less than or equal to now
-    });
-
-    for (const subscription of expiredSubscriptions) {
-      // Update subscription status to EXPIRED
-      await Payment.updateOne(
-        { _id: subscription._id },
-        { paymentStatus: "EXPIRED" }
-      );
-
-      // Update the user status to false for all affected users
-      await User.updateMany(
-        { "subscriptions.subscriptionId": subscription.subscriptionId }, // assuming subscriptions field exists in User model
-        { paymentStatus: false }
-      );
-    }
-  } catch (error) {
-    console.error("Error checking for expired subscriptions:", error);
-    throw new Error("Failed to check expired subscriptions.");
-  }
-};
-// Fetch all payment data from the database
-const getAllPaymentDataIntoDB = async () => {
-  try {
-    // Use Mongoose to fetch all payments from the Payment collection
-    const result = await Payment.find();
-
-    return result;
-  } catch (error) {
-    console.error("Error fetching all payment data:", error);
-    throw new Error("Failed to fetch all payment data.");
-  }
-};
-// Delete payment data from the database by ID
-const deletePaymentDataFromDB = async (id: string) => {
-  // Use Mongoose to delete a payment by ID from the Payment collection
-  const result = await Payment.findByIdAndDelete(id);
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, "Payment not found.");
-  }
-  return result;
-};
-
-
-
-const buySubscription = async (req :Request,res:Response)=>{
-  const YOUR_DOMAIN ="http://localhost:3000"
-  console.log("Your domain")
-  const session = await stripe.checkout.sessions.create({
-    line_items: [
-      {
-        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-        price: 'price_1QQNW1FGNtvHx4UtxklB261z',
-        quantity: 1,
-        
-      },
-    ],
-    mode: 'subscription',
-    success_url: `${YOUR_DOMAIN}/dashboard`,
-    cancel_url: `${YOUR_DOMAIN}/plans`,
-});
- //res.redirect(session.url)
-console.log(session)
-   res.redirect(session.url!);
-}
-export const paymentService = {
-  createSubscription,
-  cancelSubscription,
-  getAllPaymentDataIntoDB,
-  deletePaymentDataFromDB,
-  updateSubscriptionPlan,
-  buySubscription
+  createSubscriptionInStripe,
+  cancelSubscriptionInStripe,
+  updateSubscriptionInStripe,
 };

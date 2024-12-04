@@ -12,8 +12,11 @@ export interface IUser {
     points?: number;
     profileImage?: string;
     isVerified:boolean;
-    isSubscribed?:boolean;
-    stripeCustomerId?:string;
+    isPayment: boolean;
+    customerId: string;
+    stripeCustomerId: string;
+    subscriptionId: string;
+    priceId: string;
     subscriptionPlane?:string;
     invitedFriends?: number;
     createdAt: Date;

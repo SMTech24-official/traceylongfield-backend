@@ -6,7 +6,7 @@ import notFound from "./app/middlewares/notFound";
 import router from "./app/routes";
 import cron from "node-cron";
 import path from "path";
-import { checkExpiredSubscriptions } from "./app/module/payment/payment.services";
+
 import { deleteUnverifiedUsers } from "./app/utils/deleteUnverifiedUser";
 import AppError from "./app/errors/AppError";
 import httpStatus from "http-status";
@@ -21,6 +21,7 @@ app.use(
     origin: [
       "https://celebrated-kitten-1b6ccf.netlify.app",
       "http://localhost:3000", // only one instance of localhost
+      "http://localhost:5000", // only one instance of localhost
       "https://amz-book-review.vercel.app",
       "https://api.booksy.buzz",
       "https://amazon-book-review.vercel.app", // Only if you're directly interacting with Stripe API from your frontend
@@ -40,13 +41,7 @@ app.get("/", (req: Request, res: Response) => {
 // Serve static files from the uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 app.use(express.static("public"));
-cron.schedule("0 0 * * *", async () => {
-  try {
-    await checkExpiredSubscriptions();
-  } catch (error: any) {
-    throw new AppError(httpStatus.NOT_ACCEPTABLE, error.message);
-  }
-});
+
 
 cron.schedule("*/1 * * * *", async () => {
   try {

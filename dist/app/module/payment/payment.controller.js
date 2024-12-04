@@ -13,101 +13,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.paymentController = void 0;
-const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const payment_services_1 = require("./payment.services");
-// Create a subscription
 const createSubscription = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { plan } = req.query;
-    const data = req.body;
-    const result = yield payment_services_1.paymentService.createSubscription(data);
+    const subcription = yield payment_services_1.paymentServices.createSubscriptionInStripe(req.body);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
+        statusCode: 200,
         success: true,
-        message: "Subscription created successfully",
-        data: result,
+        message: "Subcription created successfully",
+        data: subcription,
     });
 }));
-// Create a subscription
-const updateSubscriptionPlan = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { plan } = req.query;
-    const data = req.body;
-    const result = yield payment_services_1.paymentService.updateSubscriptionPlan(data);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Subscription created successfully",
-        data: result,
-    });
-}));
-// Cancel a subscription
 const cancelSubscription = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { subscriptionId } = req.body;
-    const { plan } = req.query;
-    const result = yield payment_services_1.paymentService.cancelSubscription(subscriptionId);
-    if (!result) {
-        (0, sendResponse_1.default)(res, {
-            statusCode: http_status_1.default.NOT_FOUND,
-            success: false,
-            message: "Subscription not found or already canceled",
-            data: null,
-        });
-        return;
-    }
+    const result = yield payment_services_1.paymentServices.cancelSubscriptionInStripe(subscriptionId);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Subscription canceled successfully",
+        statusCode: 200,
+        success: false,
+        message: "Subscription cancelled successfully",
         data: result,
     });
 }));
-// Get all payments (subscriptions) from the database
-const getAllPayments = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield payment_services_1.paymentService.getAllPaymentDataIntoDB();
+const updateSubscription = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.userId;
+    console.log(req.body);
+    const result = yield payment_services_1.paymentServices.updateSubscriptionInStripe(req.body, userId);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
+        statusCode: 200,
         success: true,
-        message: "All payments retrieved successfully",
+        message: "Subscription updated successfully",
         data: result,
     });
-}));
-// Hard delete payment by ID
-const deletePayment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const result = yield payment_services_1.paymentService.deletePaymentDataFromDB(id);
-    if (!result) {
-        (0, sendResponse_1.default)(res, {
-            statusCode: http_status_1.default.NOT_FOUND,
-            success: false,
-            message: "Payment record not found",
-            data: null,
-        });
-        return;
-    }
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Payment record deleted successfully",
-        data: result,
-    });
-}));
-// Hard delete payment by ID
-const buySubscription = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const result = yield payment_services_1.paymentService.buySubscription(req, res);
-    // sendResponse(res, {
-    //   statusCode: httpStatus.OK,
-    //   success: true,
-    //   message: "Payment record deleted successfully",
-    //   data: result,
-    // });
 }));
 exports.paymentController = {
     createSubscription,
     cancelSubscription,
-    deletePayment,
-    getAllPayments,
-    updateSubscriptionPlan,
-    buySubscription
+    updateSubscription
 };

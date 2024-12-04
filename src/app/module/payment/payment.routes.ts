@@ -1,23 +1,27 @@
 import { Router } from "express";
 import { paymentController } from "./payment.controller";
+import auth from "../../middlewares/auth";
+import { USER_ROLE } from "../../utils/constant";
 
 
 
 const router = Router();
 
-// Route to create a new subscription
-router.post("/subscribe", paymentController.createSubscription);
-// Route to cancel a subscription
-router.post("/cancel", paymentController.cancelSubscription);
-// Route to get all payments (subscriptions) from the database
-router.get("/payments", paymentController.getAllPayments);
-
-// Route to update a payment by its ID
-
-router.put("/payments/update", paymentController.updateSubscriptionPlan);
-// Route to delete a payment by its ID
-router.delete("/payments/:id", paymentController.deletePayment);
-router.post("/create-checkout-session", paymentController.buySubscription);
+router.post(
+    "/create-subscription",
+    auth(USER_ROLE.admin, USER_ROLE.author),
+    paymentController.createSubscription
+  );
+  router.post(
+    "/cancel-subscription",
+    auth(USER_ROLE.author),
+    paymentController.cancelSubscription
+  );
+  router.put(
+    "/update-subscription",
+    auth(USER_ROLE.author),
+    paymentController.updateSubscription
+  );
 
 
 
