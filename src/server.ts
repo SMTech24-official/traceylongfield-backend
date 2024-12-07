@@ -1,18 +1,17 @@
 import { Server } from 'http';
 import mongoose from 'mongoose';
-
-import app from './app';
 import config from './app/config';
 import { deleteUnverifiedUsers } from './app/utils/deleteUnverifiedUser';
 import { CreateAdmin } from './app/db/seedAdmin';
+import server from './app';
 
-let server: Server;
+
 async function main() {
   try {
     await mongoose.connect(config.dataBaseUrl as string);
 
    
-    server = app.listen(config.port, () => {
+     server.listen(config.port, () => {
       console.log(`app is listening on port ${config.port}`);
     });
 

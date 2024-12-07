@@ -9,7 +9,6 @@ const router = Router();
 
 router.post(
     "/create-subscription",
-    auth(USER_ROLE.admin, USER_ROLE.author),
     paymentController.createSubscription
   );
   router.post(

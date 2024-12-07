@@ -13,15 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./app/config"));
 const seedAdmin_1 = require("./app/db/seedAdmin");
-let server;
+const app_1 = __importDefault(require("./app"));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield mongoose_1.default.connect(config_1.default.dataBaseUrl);
-            server = app_1.default.listen(config_1.default.port, () => {
+            app_1.default.listen(config_1.default.port, () => {
                 console.log(`app is listening on port ${config_1.default.port}`);
             });
         }
@@ -34,8 +33,8 @@ main();
 (0, seedAdmin_1.CreateAdmin)();
 process.on('unhandledRejection', (err) => {
     console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
-    if (server) {
-        server.close(() => {
+    if (app_1.default) {
+        app_1.default.close(() => {
             process.exit(1);
         });
     }

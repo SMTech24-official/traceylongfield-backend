@@ -164,9 +164,15 @@ const getUserProfile = (user) => __awaiter(void 0, void 0, void 0, function* () 
     const result = yield user_model_1.User.findById(user.userId).select("-password");
     return result;
 });
+//get all users
+const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_model_1.User.find({ role: { $ne: "admin" } }).select("-password");
+    return result;
+});
 exports.userServices = {
     createUser,
     verifyOtp,
     updateUserProfile,
-    getUserProfile
+    getUserProfile,
+    getAllUsers
 };

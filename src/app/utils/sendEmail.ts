@@ -12,13 +12,13 @@ export const sendEmail = async (to: string, html: string,subject:string) => {
     secure: false,
     auth: {
       // TODO: replace `user` and `pass` values from <https://forwardemail.net>   
-      user: config.mail,
-      pass: config.mail_pass,
+      user:" booksy.buzz@gmail.com",
+      pass: "ffeg afpm suct jgfv",
     },
   });
 
    await transporter.sendMail({
-    from: 'akonhasan680@gmail.com', // sender address
+    from: 'booksy.buzz@gmail.com', // sender address
     to, // list of receivers
     subject, // Subject line
     text: '', // plain text body
