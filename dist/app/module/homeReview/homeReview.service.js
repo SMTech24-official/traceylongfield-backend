@@ -19,15 +19,18 @@ const http_status_1 = __importDefault(require("http-status"));
 const fileUpload_1 = require("../../helpers/fileUpload");
 // Create a new HomeReview
 const createHomeReview = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.file) {
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Please upload a author image");
-    }
+    // if(!req.file){
+    //   throw new AppError(httpStatus.BAD_REQUEST, "Please upload a author image");
+    // }
     if (!req.body.data) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid request body");
     }
     const data = JSON.parse(req.body.data);
-    const image = yield fileUpload_1.fileUploader.uploadToDigitalOcean(req.file);
-    const homeReview = Object.assign({ image: image.Location }, data);
+    let image;
+    if (req.file) {
+        image = yield fileUpload_1.fileUploader.uploadToDigitalOcean(req.file);
+    }
+    const homeReview = Object.assign({ image: (image === null || image === void 0 ? void 0 : image.Location) || "" }, data);
     const result = yield homeReview_model_1.HomeReview.create(homeReview);
     return result;
 });

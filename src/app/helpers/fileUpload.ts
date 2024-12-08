@@ -69,18 +69,20 @@ const uploadToDigitalOcean = async (
     // Ensure the file exists before attempting to upload it
     await fs.access(file.path);
 
-    // Compress the image before uploading
-    const compressedImageBuffer = await sharp(file.path)
-      .resize(1500)  // Resize the image to a max width of 1024px (you can adjust this)
-      .jpeg({ quality: 80 })  // Compress as JPEG with 80% quality (adjust as needed)
-      .toBuffer();  // Convert to buffer for upload
+    // const compressedImageBuffer = await sharp(file.path)
+    // .resize({
+    //   width: 1500, // Resize to max width of 1500px (proportional resize)
+    //   withoutEnlargement: true, // Prevent enlarging smaller images
+    // })
+    // .withMetadata() // Retain original metadata (like orientation)
+    // .toBuffer(); // Convert to buffer for upload
 
     // Prepare file upload parameters
     const Key = `buksybuzz/${Date.now()}_${file.originalname}`;
     const uploadParams = {
       Bucket: process.env.DO_SPACE_BUCKET || "",
       Key,
-      Body: compressedImageBuffer,  // Upload the compressed image buffer
+      Body:  await fs.readFile(file.path),  // Upload the compressed image buffer
       ACL: "public-read" as ObjectCannedACL,
       ContentType: file.mimetype,
     };

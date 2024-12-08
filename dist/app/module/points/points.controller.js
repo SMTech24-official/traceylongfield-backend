@@ -27,6 +27,16 @@ const addPointWithType = (0, catchAsync_1.default)((req, res) => __awaiter(void 
         data: result,
     });
 }));
+const addMany = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const data = req.body;
+    const result = yield points_serveces_1.pointService.addMany(data);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "update review successfully!",
+        data: result,
+    });
+}));
 // get all points list 
 const getAllPoints = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield points_serveces_1.pointService.getAllPoints();
@@ -76,5 +86,6 @@ exports.pointController = {
     getAllPoints,
     getSinglePoint,
     updatePoint,
-    deletePoint
+    deletePoint,
+    addMany
 };

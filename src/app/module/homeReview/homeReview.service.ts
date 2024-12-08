@@ -8,17 +8,20 @@ import { fileUploader } from "../../helpers/fileUpload";
 // Create a new HomeReview
 const createHomeReview = async (req: Request) => {
 
-if(   !req.file){
-  throw new AppError(httpStatus.BAD_REQUEST, "Please upload a author image");
-}
+// if(!req.file){
+//   throw new AppError(httpStatus.BAD_REQUEST, "Please upload a author image");
+// }
 if(!req.body.data){
   throw new AppError(httpStatus.BAD_REQUEST, "Invalid request body");
 }
 const data=JSON.parse(req.body.data);
-const image=await fileUploader.uploadToDigitalOcean(req.file)
+let image
+if(req.file){
+  image=await fileUploader.uploadToDigitalOcean(req.file)
+}
 
 const homeReview ={
-  image:image.Location,
+  image:image?.Location||"",
  ...data
 };
 const result=await HomeReview.create(homeReview)

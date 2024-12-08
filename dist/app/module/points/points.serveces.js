@@ -18,6 +18,13 @@ const addPointWithType = (payload) => __awaiter(void 0, void 0, void 0, function
     }
     return result;
 });
+const addMany = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield points_model_1.Point.insertMany(payload);
+    if (!result) {
+        throw new Error("Failed to insert point into DB");
+    }
+    return result;
+});
 // get all points list
 const getAllPoints = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield points_model_1.Point.find();
@@ -67,5 +74,6 @@ exports.pointService = {
     getAllPoints,
     getSinglePoint,
     updatePoint,
-    deletePoint
+    deletePoint,
+    addMany
 };

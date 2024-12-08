@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
-const config_1 = __importDefault(require("../config"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const AppError_1 = __importDefault(require("../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
@@ -25,12 +24,12 @@ const sendEmail = (to, html, subject) => __awaiter(void 0, void 0, void 0, funct
             secure: false,
             auth: {
                 // TODO: replace `user` and `pass` values from <https://forwardemail.net>   
-                user: config_1.default.mail,
-                pass: config_1.default.mail_pass,
+                user: " booksy.buzz@gmail.com",
+                pass: "ffeg afpm suct jgfv",
             },
         });
         yield transporter.sendMail({
-            from: 'akonhasan680@gmail.com', // sender address
+            from: 'booksy.buzz@gmail.com', // sender address
             to, // list of receivers
             subject, // Subject line
             text: '', // plain text body

@@ -2,10 +2,21 @@ import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { pointService } from "./points.serveces";
+import { IPoints } from "./points.interface";
 
 const addPointWithType = catchAsync(async (req, res) => {
    const data=req.body
     const result = await pointService.addPointWithType(data)
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "update review successfully!",
+      data: result,
+    });
+  });
+const addMany = catchAsync(async (req, res) => {
+   const data=req.body
+    const result = await pointService.addMany(data as IPoints[])
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -63,5 +74,6 @@ const addPointWithType = catchAsync(async (req, res) => {
     getAllPoints,
     getSinglePoint,
     updatePoint,
-    deletePoint
+    deletePoint,
+    addMany
   }

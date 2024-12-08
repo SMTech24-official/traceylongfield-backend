@@ -6,6 +6,7 @@ import { USER_ROLE } from "../../utils/constant";
 const router=Router();
 
 router.post("/add-point",pointController.addPointWithType)
+router.post("/add-many",pointController.addMany)
 // get all points list
 
 router.get("/",pointController.getAllPoints)

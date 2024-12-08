@@ -27,11 +27,10 @@ exports.Chat = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 // Define the schema
 const ChatSchema = new mongoose_1.Schema({
-    senderId: { type: String, required: true },
-    receiverId: { type: String, required: false },
-    message: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now },
-    role: { type: String, required: false },
+    senderId: { type: String, },
+    receiverId: { type: String },
+    message: { type: String },
+    role: { type: String },
 }, {
     timestamps: true, // Automatically creates createdAt and updatedAt fields
 });

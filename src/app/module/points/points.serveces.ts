@@ -8,6 +8,13 @@ const addPointWithType = async (payload: IPoints) => {
   }
   return result;
 };
+const addMany = async (payload: IPoints[]) => {
+  const result = await Point.insertMany(payload);
+  if (!result) {
+    throw new Error("Failed to insert point into DB");
+  }
+  return result;
+};
 
 // get all points list
 
@@ -73,5 +80,6 @@ export const pointService = {
   getAllPoints,
   getSinglePoint,
   updatePoint,
-  deletePoint
+  deletePoint,
+  addMany
 };

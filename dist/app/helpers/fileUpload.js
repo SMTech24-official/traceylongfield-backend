@@ -19,7 +19,6 @@ const config_1 = __importDefault(require("../config"));
 const cloudinary_1 = require("cloudinary");
 const promises_1 = __importDefault(require("fs/promises"));
 const client_s3_1 = require("@aws-sdk/client-s3");
-const sharp_1 = __importDefault(require("sharp")); // Import sharp for image processing
 // /var/www/uploads
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
@@ -64,17 +63,19 @@ const uploadToDigitalOcean = (file) => __awaiter(void 0, void 0, void 0, functio
     try {
         // Ensure the file exists before attempting to upload it
         yield promises_1.default.access(file.path);
-        // Compress the image before uploading
-        const compressedImageBuffer = yield (0, sharp_1.default)(file.path)
-            .resize(1500) // Resize the image to a max width of 1024px (you can adjust this)
-            .jpeg({ quality: 80 }) // Compress as JPEG with 80% quality (adjust as needed)
-            .toBuffer(); // Convert to buffer for upload
+        // const compressedImageBuffer = await sharp(file.path)
+        // .resize({
+        //   width: 1500, // Resize to max width of 1500px (proportional resize)
+        //   withoutEnlargement: true, // Prevent enlarging smaller images
+        // })
+        // .withMetadata() // Retain original metadata (like orientation)
+        // .toBuffer(); // Convert to buffer for upload
         // Prepare file upload parameters
         const Key = `buksybuzz/${Date.now()}_${file.originalname}`;
         const uploadParams = {
             Bucket: process.env.DO_SPACE_BUCKET || "",
             Key,
-            Body: compressedImageBuffer, // Upload the compressed image buffer
+            Body: yield promises_1.default.readFile(file.path), // Upload the compressed image buffer
             ACL: "public-read",
             ContentType: file.mimetype,
         };

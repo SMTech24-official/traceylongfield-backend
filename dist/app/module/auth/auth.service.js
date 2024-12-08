@@ -163,7 +163,7 @@ const forgetPassword = (email) => __awaiter(void 0, void 0, void 0, function* ()
                 <p style="font-size: 12px; color: #999; text-align: center;">
                     Best Regards,<br/>
                     <span style="font-weight: bold; color: #3f51b5;">Booksy.buzz Team</span><br/>
-                    <a href="mailto:support@booksy.buzz.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
+                    <a href="mailto:booksy.buzz@gmail.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
                 </p>
             </div>
         </div>
@@ -227,7 +227,7 @@ const resendOtp = (email) => __awaiter(void 0, void 0, void 0, function* () {
                     <p style="font-size: 12px; color: #999; text-align: center;">
                         Best Regards,<br/>
                         <span style="font-weight: bold; color: #3f51b5;">Booksy.buzz Team</span><br/>
-                        <a href="mailto:support@booksy.buzz.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
+                        <a href="mailto:booksy.buzz@gmail.com" style="color: #ffffff; text-decoration: none; font-weight: bold;">Contact Support</a>
                     </p>
                 </div>
             </div>

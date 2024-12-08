@@ -10,6 +10,7 @@ const auth_1 = __importDefault(require("../../middlewares/auth"));
 const constant_1 = require("../../utils/constant");
 const router = (0, express_1.Router)();
 router.post("/add-point", points_controller_1.pointController.addPointWithType);
+router.post("/add-many", points_controller_1.pointController.addMany);
 // get all points list
 router.get("/", points_controller_1.pointController.getAllPoints);
 // get single point 
