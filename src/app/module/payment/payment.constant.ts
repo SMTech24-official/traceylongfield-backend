@@ -1,7 +1,7 @@
 export const plans = {
 
     "monthly": {
-      priceId: "price_1QQ6HuFGNtvHx4UtSXfMY9e6",
+      priceId: "price_1QU25bFGNtvHx4Utk1dhBg8J",
       duration: 30,
       price: 20,
     },

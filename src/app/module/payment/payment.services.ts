@@ -1,4 +1,5 @@
 
+import { disconnect } from "process";
 import config from "../../config";
 import AppError from "../../errors/AppError";
 import { Plan } from "../plan/plan.mode";
@@ -49,7 +50,7 @@ const stripe = require('stripe')(config.stripe_secret_key);
 // };
 
 const createSubscriptionInStripe = async ( payload: any) => {
-  const { paymentMethodId, planType, email } = payload;
+  const { paymentMethodId, planType, email,couponId ="hasan2"} = payload;
 
   const userInfo = await User.findOne({email:email});
 
@@ -78,13 +79,41 @@ const createSubscriptionInStripe = async ( payload: any) => {
     invoice_settings: { default_payment_method: paymentMethodId },
   });
 
-  const subscription = await stripe.subscriptions.create({
+  //
+
+  const coupon = await stripe.coupons.retrieve(couponId);
+
+  if(!coupon){
+    throw new AppError(404, "Coupon not found");
+  }
+  if (!coupon.valid) {
+    throw new AppError(400, "Coupon is not valid");
+  }
+  if (coupon.redeem_by && Date.now() / 1000 > coupon.redeem_by) {
+   throw new AppError(400, "Coupon is expired");
+  }
+  if (coupon.max_redemptions && coupon.times_redeemed >= coupon.max_redemptions) {
+   throw new AppError(400, "Coupon has reached its maximum redemptions");
+  }
+  
+  const subscriptionParams:any = {
     customer: customerId,
     items: [{ price: priceId }],
-    discount:"",
     expand: ["latest_invoice.payment_intent"],
-  });
-
+  };
+  
+  // Check if a coupon exists
+  if (couponId) {
+    subscriptionParams.discounts = [
+      {
+        coupon: couponId, // Replace couponId with the actual coupon value
+      },
+    ];
+  }
+  
+  // Create the subscription
+  const subscription = await stripe.subscriptions.create(subscriptionParams);
+  
   const updateData = {
     isPayment: true,
     subscriptionId: subscription.id,
@@ -93,7 +122,16 @@ const createSubscriptionInStripe = async ( payload: any) => {
     
   };
   await User.findByIdAndUpdate(userInfo._id, updateData);
-  return subscription;
+
+  const returnData={
+    subscriptionPlane: planType,
+    subtotal: subscription?.latest_invoice?.subtotal|| null,
+    total: subscription?.latest_invoice?.total || null,
+    discount:subscription?.latest_invoice?.total_discount_amounts[0]?.amount|| null,
+    discountPercent:subscription?.latest_invoice?.discount?.coupon?.percent_off|| null
+  }
+  
+  return returnData;
 };
 
 // const createSubscriptionInStripe=async(payload:any)=>{
@@ -109,11 +147,11 @@ const cancelSubscriptionInStripe = async (subscriptionId: string) => {
 const updateSubscriptionInStripe = async (payload: any, userId: string) => {
   const { paymentMethodId,planType } = payload;
   const userInfo = await User.findById(userId);
-  const customerId = userInfo?.customerId as string;
-
+  
   if (!userInfo) {
     throw new AppError(404, "User not found");
   }
+  const customerId = userInfo?.customerId as string;
 
   const selectedPlan = plans[planType as keyof typeof plans];
   console.log(planType,selectedPlan)
@@ -131,6 +169,7 @@ const updateSubscriptionInStripe = async (payload: any, userId: string) => {
 
   const subscription = await stripe.subscriptions.create({
     customer: customerId,
+
     items: [{ price: priceId }],
     expand: ["latest_invoice.payment_intent"],
   });
