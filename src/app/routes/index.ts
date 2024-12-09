@@ -12,6 +12,7 @@ import { inviteRouter } from "../module/invite/invite.routes";
 import { activityRouter } from "../module/activity/activity.route";
 import { HomeReviewRouter } from "../module/homeReview/homeReview.routes";
 import { QuestionRouter } from "../module/question/question.routes";
+import { couponRouter } from "../module/coupon/coupon.routes";
 
 
 
@@ -64,6 +65,10 @@ const moduleRoutes=[
     {
         path: '/questions',
         route: QuestionRouter
+    },
+    {
+        path: '/coupon',
+        route: couponRouter
     },
  
 ]

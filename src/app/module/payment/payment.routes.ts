@@ -21,6 +21,11 @@ router.post(
     auth(USER_ROLE.author),
     paymentController.updateSubscription
   );
+  router.post(
+    "/create-coupon",
+    auth(USER_ROLE.author),
+    paymentController.createCoupon
+  );
 
 
 

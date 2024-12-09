@@ -1,9 +1,11 @@
 
+import config from "../../config";
 import AppError from "../../errors/AppError";
+import { Plan } from "../plan/plan.mode";
 import { User } from "../users/user.model";
 import { plans } from "./payment.constant";
 
-const stripe = require('stripe')('sk_test_51QA6IkFGNtvHx4UtPq0S9a91GR9VUfXVIEptfIdma8LX8ITVSKu5ehK3MclRD9qDN5lYgJZCXp8RRWkKKWKEcP98004GHpKW2R');
+const stripe = require('stripe')(config.stripe_secret_key);
 // const createPlanInStripe = async (payload: any) => {
 //   const {
 //     name,
@@ -47,7 +49,7 @@ const stripe = require('stripe')('sk_test_51QA6IkFGNtvHx4UtPq0S9a91GR9VUfXVIEptf
 // };
 
 const createSubscriptionInStripe = async ( payload: any) => {
-  const { paymentMethodId, planType,email } = payload;
+  const { paymentMethodId, planType, email } = payload;
 
   const userInfo = await User.findOne({email:email});
 
@@ -79,6 +81,7 @@ const createSubscriptionInStripe = async ( payload: any) => {
   const subscription = await stripe.subscriptions.create({
     customer: customerId,
     items: [{ price: priceId }],
+    discount:"",
     expand: ["latest_invoice.payment_intent"],
   });
 
@@ -92,6 +95,10 @@ const createSubscriptionInStripe = async ( payload: any) => {
   await User.findByIdAndUpdate(userInfo._id, updateData);
   return subscription;
 };
+
+// const createSubscriptionInStripe=async(payload:any)=>{
+
+// }
 
 const cancelSubscriptionInStripe = async (subscriptionId: string) => {
   const cancelSubcription = await stripe.subscriptions.cancel(subscriptionId);
@@ -139,10 +146,13 @@ const updateSubscriptionInStripe = async (payload: any, userId: string) => {
   return subscription;
 };
 
-
+const createCoupon = async ()=>{
+  console.log("createCoupon")
+}
 export const paymentServices = {
 
   createSubscriptionInStripe,
   cancelSubscriptionInStripe,
   updateSubscriptionInStripe,
+  createCoupon
 };
