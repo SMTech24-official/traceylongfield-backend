@@ -1,5 +1,5 @@
 export interface IHomeReview {
-  image: string;
+  image?: string;
   name: string;
   socials: string[];
   review: string;

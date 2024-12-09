@@ -3,7 +3,7 @@ import { IHomeReview } from "./homeReview.interface";
 
 const homeReviewSchema = new Schema<IHomeReview>(
   {
-    image: { type: String, required: true },
+    image: { type: String},
     name: { type: String, required: true },
     socials: { type: [String], required: true },
     review: { type: String, required: true },

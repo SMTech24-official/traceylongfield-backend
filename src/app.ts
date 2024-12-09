@@ -1,4 +1,4 @@
-import { createQuestion } from "./app/module/question/question.controller";
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
