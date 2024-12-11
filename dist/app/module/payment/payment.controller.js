@@ -46,8 +46,20 @@ const updateSubscription = (0, catchAsync_1.default)((req, res) => __awaiter(voi
         data: result,
     });
 }));
+const createCoupon = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.userId;
+    console.log(req.body);
+    const result = yield payment_services_1.paymentServices.createCoupon();
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Subscription updated successfully",
+        data: result,
+    });
+}));
 exports.paymentController = {
     createSubscription,
     cancelSubscription,
-    updateSubscription
+    updateSubscription,
+    createCoupon
 };

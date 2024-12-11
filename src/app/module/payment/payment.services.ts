@@ -5,6 +5,7 @@ import AppError from "../../errors/AppError";
 import { Plan } from "../plan/plan.mode";
 import { User } from "../users/user.model";
 import { plans } from "./payment.constant";
+import { JwtPayload } from "jsonwebtoken";
 
 const stripe = require('stripe')(config.stripe_secret_key);
 // const createPlanInStripe = async (payload: any) => {
@@ -50,7 +51,7 @@ const stripe = require('stripe')(config.stripe_secret_key);
 // };
 
 const createSubscriptionInStripe = async ( payload: any) => {
-  const { paymentMethodId, planType, email,couponId ="hasan2"} = payload;
+  const { paymentMethodId, planType, email,couponId } = payload;
 
   const userInfo = await User.findOne({email:email});
 
@@ -81,20 +82,7 @@ const createSubscriptionInStripe = async ( payload: any) => {
 
   //
 
-  const coupon = await stripe.coupons.retrieve(couponId);
 
-  if(!coupon){
-    throw new AppError(404, "Coupon not found");
-  }
-  if (!coupon.valid) {
-    throw new AppError(400, "Coupon is not valid");
-  }
-  if (coupon.redeem_by && Date.now() / 1000 > coupon.redeem_by) {
-   throw new AppError(400, "Coupon is expired");
-  }
-  if (coupon.max_redemptions && coupon.times_redeemed >= coupon.max_redemptions) {
-   throw new AppError(400, "Coupon has reached its maximum redemptions");
-  }
   
   const subscriptionParams:any = {
     customer: customerId,
@@ -104,6 +92,20 @@ const createSubscriptionInStripe = async ( payload: any) => {
   
   // Check if a coupon exists
   if (couponId) {
+    const coupon = await stripe.coupons.retrieve(couponId);
+
+    if(!coupon){
+      throw new AppError(404, "Coupon not found");
+    }
+    if (!coupon.valid) {
+      throw new AppError(400, "Coupon is not valid");
+    }
+    if (coupon.redeem_by && Date.now() / 1000 > coupon.redeem_by) {
+     throw new AppError(400, "Coupon is expired");
+    }
+    if (coupon.max_redemptions && coupon.times_redeemed >= coupon.max_redemptions) {
+     throw new AppError(400, "Coupon has reached its maximum redemptions");
+    }
     subscriptionParams.discounts = [
       {
         coupon: couponId, // Replace couponId with the actual coupon value
@@ -138,9 +140,16 @@ const createSubscriptionInStripe = async ( payload: any) => {
 
 // }
 
-const cancelSubscriptionInStripe = async (subscriptionId: string) => {
+const cancelSubscriptionInStripe = async (subscriptionId: string, user:JwtPayload) => {
   const cancelSubcription = await stripe.subscriptions.cancel(subscriptionId);
-
+  const updateData = {
+    isPayment: false,
+    subscriptionId: "",
+    subscriptionPlane:"",
+    priceId: "",
+    
+  };
+  await User.findByIdAndUpdate(user.userId, updateData);
   return cancelSubcription;
 };
 

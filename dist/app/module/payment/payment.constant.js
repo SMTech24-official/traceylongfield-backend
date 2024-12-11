@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentStatus = exports.plans = void 0;
 exports.plans = {
     "monthly": {
-        priceId: "price_1QQ6HuFGNtvHx4UtSXfMY9e6",
+        priceId: "price_1QU25bFGNtvHx4Utk1dhBg8J",
         duration: 30,
         price: 20,
     },

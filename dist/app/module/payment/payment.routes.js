@@ -12,4 +12,5 @@ const router = (0, express_1.Router)();
 router.post("/create-subscription", payment_controller_1.paymentController.createSubscription);
 router.post("/cancel-subscription", (0, auth_1.default)(constant_1.USER_ROLE.author), payment_controller_1.paymentController.cancelSubscription);
 router.put("/update-subscription", (0, auth_1.default)(constant_1.USER_ROLE.author), payment_controller_1.paymentController.updateSubscription);
+router.post("/create-coupon", (0, auth_1.default)(constant_1.USER_ROLE.author), payment_controller_1.paymentController.createCoupon);
 exports.PaymentRoutes = router;

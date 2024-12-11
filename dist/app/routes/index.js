@@ -14,6 +14,7 @@ const invite_routes_1 = require("../module/invite/invite.routes");
 const activity_route_1 = require("../module/activity/activity.route");
 const homeReview_routes_1 = require("../module/homeReview/homeReview.routes");
 const question_routes_1 = require("../module/question/question.routes");
+const coupon_routes_1 = require("../module/coupon/coupon.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     { path: '/users',
@@ -62,6 +63,10 @@ const moduleRoutes = [
     {
         path: '/questions',
         route: question_routes_1.QuestionRouter
+    },
+    {
+        path: '/coupon',
+        route: coupon_routes_1.couponRouter
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

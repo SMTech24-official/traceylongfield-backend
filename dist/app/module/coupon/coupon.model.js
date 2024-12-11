@@ -23,12 +23,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HomeReview = void 0;
+exports.coupon = exports.couponSchema = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const homeReviewSchema = new mongoose_1.Schema({
-    image: { type: String },
-    name: { type: String, required: true },
-    socials: { type: [String], required: true },
-    review: { type: String, required: true },
-}, { timestamps: true });
-exports.HomeReview = mongoose_1.default.model("HomeReview", homeReviewSchema);
+exports.couponSchema = new mongoose_1.Schema({
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+    },
+    // Add other fields here as per your requirements
+}, {
+    timestamps: true, // Automatically adds createdAt and updatedAt
+});
+exports.coupon = mongoose_1.default.model('coupon', exports.couponSchema);

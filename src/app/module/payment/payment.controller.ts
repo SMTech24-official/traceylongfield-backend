@@ -2,6 +2,7 @@ import httpStatus from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { paymentServices } from "./payment.services";
+import { JwtPayload } from "jsonwebtoken";
 const createSubscription = catchAsync(async (req, res) => {
   const subcription = await paymentServices.createSubscriptionInStripe(
     req.body
@@ -17,13 +18,14 @@ const createSubscription = catchAsync(async (req, res) => {
 
 const cancelSubscription = catchAsync(async (req, res) => {
   const { subscriptionId } = req.body;
+  const user=req.user
   const result = await paymentServices.cancelSubscriptionInStripe(
-    subscriptionId
+    subscriptionId,user as JwtPayload
   );
 
   sendResponse(res, {
     statusCode: 200,
-    success: false,
+    success: true,
     message: "Subscription cancelled successfully",
     data: result,
   });

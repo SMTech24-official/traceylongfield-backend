@@ -18,6 +18,9 @@ const loginUser = async (payload: TLoginUser) => {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
     }
    
+    if(!user?.isPayment){
+        throw new AppError(httpStatus.BAD_REQUEST, 'Your payment is not completed! Please complete your payment');
+      }
     // checking if the user is already deleted
 
     const isVerified = user?.isVerified;
