@@ -163,7 +163,7 @@ const updateSubscriptionInStripe = async (payload: any, userId: string) => {
   const customerId = userInfo?.customerId as string;
 
   const selectedPlan = plans[planType as keyof typeof plans];
-  console.log(planType,selectedPlan)
+ 
   if (!selectedPlan) {
     throw new AppError(400, "Invalid plan type");
   }

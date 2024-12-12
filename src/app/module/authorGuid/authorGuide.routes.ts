@@ -7,7 +7,7 @@ import { authorGuideController } from "./authorGuide.controller";
 
 const router=Router();
 
-router.post("/add-author-guide",auth(USER_ROLE.admin),fileUploader.uploadGuide, authorGuideController.addAuthorGuide)
+router.post("/add-author-guide",fileUploader.uploadGuide, authorGuideController.addAuthorGuide)
 // update author guide
 
 router.get("/author-guide", auth(USER_ROLE.admin, USER_ROLE.author), authorGuideController.getAllAuthorGuides)

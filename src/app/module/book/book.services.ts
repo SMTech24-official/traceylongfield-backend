@@ -118,7 +118,7 @@ const getAllMyBooks = async (page: number, limit: number, status: string,user:Jw
 const getAllBooks = async (page: number, limit: number, user:JwtPayload,genre:string) => {
 
     // Fetch completed review books for the user
-    const completedReviewBook = await ReadingBook.find({ userId: user.userId, isApproved: true });
+    const completedReviewBook = await ReadingBook.find({ userId: user.userId});
   
     // Extract the bookIds from the completedReviewBook array
     const completedBookIds = completedReviewBook.map((book: any) => book.bookId);

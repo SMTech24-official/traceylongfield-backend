@@ -5,6 +5,7 @@ import httpStatus from "http-status";
 import config from "../../config";
 import { AuthorGuid } from "./authorGuide.model";
 import { User } from "../users/user.model";
+import { fileUploader } from "../../helpers/fileUpload";
 
 const addAuthorGuide = async (req: Request) => {
   const files = req.files as any;
@@ -14,15 +15,15 @@ const addAuthorGuide = async (req: Request) => {
       "File is required for  add guide"
     );
   }
+ 
+  const cover = await fileUploader.uploadToDigitalOcean(files.cover[0]);
+  const pdfFile = await fileUploader.uploadToDigitalOcean(files.pdfFile[0]);
+ 
 
-  const cover = files.cover.map((file: any) => ({
-    fileName: file?.filename,
-    url: `${config.back_end_base_url}/uploads/${file?.originalname}`,
-  }));
-  const pdfFile = files.pdfFile.map((file: any) => ({
-    fileName: file?.filename,
-    url: `${config.back_end_base_url}/uploads/${file?.originalname}`,
-  }));
+
+
+
+
   if (!req.body.data) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid request body");
   }
@@ -35,8 +36,8 @@ const addAuthorGuide = async (req: Request) => {
 
   const payload = {
     ...Data,
-    cover: cover[0].url,
-    pdfFile: pdfFile[0].url,
+    cover: cover.Location,
+    pdfFile: pdfFile.Location,
   };
   const authorGuide: IAuthorGuid = await AuthorGuid.create(payload);
   return authorGuide;
@@ -62,16 +63,10 @@ const updateAuthorGuide = async (req: Request) => {
   let cover;
   let pdfFile;
   if (files.cover) {
-    cover = files?.cover?.map((file: any) => ({
-      fileName: file?.filename,
-      url: `${config.back_end_base_url}/uploads/${file?.originalname}`,
-    }));
+     cover = await fileUploader.uploadToDigitalOcean(files.cover[0]);
   }
   if (files.pdfFile) {
-    pdfFile = files?.pdfFile?.map((file: any) => ({
-      fileName: file?.filename,
-      url: `${config.back_end_base_url}/uploads/${file?.originalname}`,
-    }));
+    pdfFile = await fileUploader.uploadToDigitalOcean(files.pdfFile[0]);
   }
   if (!req.body.data) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid request body");
@@ -91,10 +86,10 @@ const updateAuthorGuide = async (req: Request) => {
     updateDoc.addedBy = Data.addedBy;
   }
   if (cover) {
-    updateDoc.cover = cover[0].url;
+    updateDoc.cover = cover.Location;
   }
   if (pdfFile) {
-    updateDoc.pdfFile = pdfFile[0].url;
+    updateDoc.pdfFile = pdfFile.Location;
   }
 
   const authorGuide = await AuthorGuid.findByIdAndUpdate(id, updateDoc, {

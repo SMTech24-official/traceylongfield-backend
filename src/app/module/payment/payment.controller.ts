@@ -33,7 +33,7 @@ const cancelSubscription = catchAsync(async (req, res) => {
 
 const updateSubscription = catchAsync(async (req, res) => {
   const userId = req.user.userId;
-  console.log(req.body);
+  
   const result = await paymentServices.updateSubscriptionInStripe(
     req.body,
     userId
@@ -48,7 +48,7 @@ const updateSubscription = catchAsync(async (req, res) => {
 });
 const createCoupon = catchAsync(async (req, res) => {
   const userId = req.user.userId;
-  console.log(req.body);
+ 
   const result = await paymentServices.createCoupon();
 
   sendResponse(res, {

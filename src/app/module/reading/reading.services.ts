@@ -145,8 +145,7 @@ const getCompleteReview = async (user: JwtPayload) => {
 
 
   const myBookReviewHistory=async(user:JwtPayload)=>{
-    // console.log(user)
-    // console.log(await ReadingBook.find())
+   
    const result=await Book.find({userId:new ObjectId(user.userId)})
    const bookIds = result.map(book => book._id)
    const book=await ReadingBook.find()

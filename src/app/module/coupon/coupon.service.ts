@@ -9,7 +9,7 @@ const couponInsertIntoDB =async() =>{
   name: 'Pro Subscription',
   description: 'Access to premium features',
 });
-console.log('Product created:', product);
+
 
 // Step 2: Create a Price for the Product
 const price = await stripe.prices.create({
@@ -18,7 +18,7 @@ const price = await stripe.prices.create({
   recurring: { interval: 'month' }, // Monthly subscription
   product: product.id,
 });
-console.log('Price created:', price);
+
 
 // Step 3: Create a Coupon
 const coupon = await stripe.coupons.create({
@@ -27,7 +27,7 @@ const coupon = await stripe.coupons.create({
   duration: 'repeating',
   duration_in_months: 3, // Apply coupon for 3 months
 });
-console.log('Coupon created:', coupon);
+
 
 
 // Step 4: Apply Coupon and Create Subscription
@@ -35,7 +35,7 @@ const customer = await stripe.customers.create({
   email: 'customer@example.com', // Replace with the customer's email
   name: 'John Doe',
 });
-console.log('Customer created:', customer);
+
 
 // await stripe.paymentMethods.attach('pm_1QSBZrFGNtvHx4UtyI7lnedr', {
 //   customer: customer.id,
@@ -45,7 +45,7 @@ const subscription = await stripe.subscriptions.create({
   items: [{ price: price.id }],
   discounts: [{ coupon: coupon.id }], // Apply the coupon
 });
-console.log('Subscription created:', subscription);
+
 
 return {
   product,

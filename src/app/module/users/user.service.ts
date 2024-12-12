@@ -134,10 +134,11 @@ let image
 if(file){
    image= await fileUploader.uploadToDigitalOcean(file!)
 }
+const existUser= await User.findOne({id: req.user.userId})
 const payload={
   _id: req.user.userId,
   ...body,
-  profileImage: image!.Location
+  profileImage: image?.Location||existUser?.profileImage
 }
 
 const result = await User.findByIdAndUpdate(req.user.userId, payload, { new: true }).select("-password");
