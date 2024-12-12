@@ -10,6 +10,7 @@ import * as argon2 from "argon2";
 import { sendEmail } from "../../utils/sendEmail";
 import crypto from "crypto";
 import { ObjectId } from 'mongoose';
+import { CloudFormation } from "aws-sdk";
 const loginUser = async (payload: TLoginUser) => {
     // checking if the user is exist
     const user = await User.findOne({ email: payload.email })
@@ -219,28 +220,27 @@ const resetPassword = async (
     if (!isVerified) {
         throw new AppError(httpStatus.FORBIDDEN, 'Your OTP is not Verified!');
     }
+    console.log(payload.newPassword)
 
+const newHashedPassword = await argon2.hash(payload.newPassword.toString());
 
+console.log(newHashedPassword)
+console.log(user)
 
-
-
- 
-    //localhost:3000?id=A-0001&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBLTAwMDEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDI4NTA2MTcsImV4cCI6MTcwMjg1MTIxN30.-T90nRaz8-KouKki1DkCSMAbsHyb9yDi0djZU3D6QO4
-
-
-    //hash new password
-    const newHashedPassword = await argon2.hash(payload.newPassword);
-
-    await User.findOneAndUpdate(
+   const result= await User.findOneAndUpdate(
         {
-            id: user._id,
-            role: user.role,
+            _id: user._id,
+            
         },
         {
             password: newHashedPassword,
           
         },
     );
+    if(!result){
+        throw new Error('Failed to update password');
+    }
+    console.log(result)
 };
 
 // resend OTP for verification
