@@ -5,11 +5,11 @@ const payload: any = {
   fullName: "Super",
   reviewerName: "Admin",
   amazonCountry: "US",
-  amazonAuthorPageLink: "http://",
+  amazonAuthorPageLink: "",
    
-  email: "akonhasan@gmail.com",
+  email: "admin@booksy.buzz",
     phoneNumber: "1234567890",
-    password: "123456",
+    password: "12345678",
     role: USER_ROLE.admin,
   };
 

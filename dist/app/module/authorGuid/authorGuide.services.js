@@ -15,21 +15,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authorGuideService = void 0;
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
-const config_1 = __importDefault(require("../../config"));
 const authorGuide_model_1 = require("./authorGuide.model");
+const fileUpload_1 = require("../../helpers/fileUpload");
 const addAuthorGuide = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const files = req.files;
     if (!files || !files.cover || !files.pdfFile) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "File is required for  add guide");
     }
-    const cover = files.cover.map((file) => ({
-        fileName: file === null || file === void 0 ? void 0 : file.filename,
-        url: `${config_1.default.back_end_base_url}/uploads/${file === null || file === void 0 ? void 0 : file.originalname}`,
-    }));
-    const pdfFile = files.pdfFile.map((file) => ({
-        fileName: file === null || file === void 0 ? void 0 : file.filename,
-        url: `${config_1.default.back_end_base_url}/uploads/${file === null || file === void 0 ? void 0 : file.originalname}`,
-    }));
+    const cover = yield fileUpload_1.fileUploader.uploadToDigitalOcean(files.cover[0]);
+    const pdfFile = yield fileUpload_1.fileUploader.uploadToDigitalOcean(files.pdfFile[0]);
     if (!req.body.data) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid request body");
     }
@@ -40,7 +34,7 @@ const addAuthorGuide = (req) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid JSON in request body");
     }
-    const payload = Object.assign(Object.assign({}, Data), { cover: cover[0].url, pdfFile: pdfFile[0].url });
+    const payload = Object.assign(Object.assign({}, Data), { cover: cover.Location, pdfFile: pdfFile.Location });
     const authorGuide = yield authorGuide_model_1.AuthorGuid.create(payload);
     return authorGuide;
 });
@@ -59,22 +53,15 @@ const getAuthorGuideById = (id) => __awaiter(void 0, void 0, void 0, function* (
 });
 // update author guide
 const updateAuthorGuide = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
     const id = req.params.id;
     const files = req.files;
     let cover;
     let pdfFile;
     if (files.cover) {
-        cover = (_a = files === null || files === void 0 ? void 0 : files.cover) === null || _a === void 0 ? void 0 : _a.map((file) => ({
-            fileName: file === null || file === void 0 ? void 0 : file.filename,
-            url: `${config_1.default.back_end_base_url}/uploads/${file === null || file === void 0 ? void 0 : file.originalname}`,
-        }));
+        cover = yield fileUpload_1.fileUploader.uploadToDigitalOcean(files.cover[0]);
     }
     if (files.pdfFile) {
-        pdfFile = (_b = files === null || files === void 0 ? void 0 : files.pdfFile) === null || _b === void 0 ? void 0 : _b.map((file) => ({
-            fileName: file === null || file === void 0 ? void 0 : file.filename,
-            url: `${config_1.default.back_end_base_url}/uploads/${file === null || file === void 0 ? void 0 : file.originalname}`,
-        }));
+        pdfFile = yield fileUpload_1.fileUploader.uploadToDigitalOcean(files.pdfFile[0]);
     }
     if (!req.body.data) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Invalid request body");
@@ -94,10 +81,10 @@ const updateAuthorGuide = (req) => __awaiter(void 0, void 0, void 0, function* (
         updateDoc.addedBy = Data.addedBy;
     }
     if (cover) {
-        updateDoc.cover = cover[0].url;
+        updateDoc.cover = cover.Location;
     }
     if (pdfFile) {
-        updateDoc.pdfFile = pdfFile[0].url;
+        updateDoc.pdfFile = pdfFile.Location;
     }
     const authorGuide = yield authorGuide_model_1.AuthorGuid.findByIdAndUpdate(id, updateDoc, {
         new: true,

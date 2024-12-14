@@ -10,7 +10,7 @@ const constant_1 = require("../../utils/constant");
 const fileUpload_1 = require("../../helpers/fileUpload");
 const authorGuide_controller_1 = require("./authorGuide.controller");
 const router = (0, express_1.Router)();
-router.post("/add-author-guide", (0, auth_1.default)(constant_1.USER_ROLE.admin), fileUpload_1.fileUploader.uploadGuide, authorGuide_controller_1.authorGuideController.addAuthorGuide);
+router.post("/add-author-guide", fileUpload_1.fileUploader.uploadGuide, authorGuide_controller_1.authorGuideController.addAuthorGuide);
 // update author guide
 router.get("/author-guide", (0, auth_1.default)(constant_1.USER_ROLE.admin, constant_1.USER_ROLE.author), authorGuide_controller_1.authorGuideController.getAllAuthorGuides);
 router.get("/author-guide/:id", (0, auth_1.default)(constant_1.USER_ROLE.admin, constant_1.USER_ROLE.author), authorGuide_controller_1.authorGuideController.getAuthorGuideById);

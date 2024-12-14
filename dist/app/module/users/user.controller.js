@@ -37,7 +37,6 @@ const verifyOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
     });
 }));
 const updateUserProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.file);
     const result = yield user_service_1.userServices.updateUserProfile(req);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,

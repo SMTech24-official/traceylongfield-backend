@@ -105,7 +105,7 @@ const getAllMyBooks = (page, limit, status, user) => __awaiter(void 0, void 0, v
 });
 const getAllBooks = (page, limit, user, genre) => __awaiter(void 0, void 0, void 0, function* () {
     // Fetch completed review books for the user
-    const completedReviewBook = yield reading_model_1.ReadingBook.find({ userId: user.userId, isApproved: true });
+    const completedReviewBook = yield reading_model_1.ReadingBook.find({ userId: user.userId });
     // Extract the bookIds from the completedReviewBook array
     const completedBookIds = completedReviewBook.map((book) => book.bookId);
     // Define the query for finding books that are ready for review

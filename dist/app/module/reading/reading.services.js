@@ -125,8 +125,6 @@ const getSingleReview = (user, reviewId) => __awaiter(void 0, void 0, void 0, fu
     return readingBook;
 });
 const myBookReviewHistory = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(user)
-    // console.log(await ReadingBook.find())
     const result = yield book_model_1.Book.find({ userId: new mongodb_1.ObjectId(user.userId) });
     const bookIds = result.map(book => book._id);
     const book = yield reading_model_1.ReadingBook.find();

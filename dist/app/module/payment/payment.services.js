@@ -126,8 +126,15 @@ const createSubscriptionInStripe = (payload) => __awaiter(void 0, void 0, void 0
 });
 // const createSubscriptionInStripe=async(payload:any)=>{
 // }
-const cancelSubscriptionInStripe = (subscriptionId) => __awaiter(void 0, void 0, void 0, function* () {
+const cancelSubscriptionInStripe = (subscriptionId, user) => __awaiter(void 0, void 0, void 0, function* () {
     const cancelSubcription = yield stripe.subscriptions.cancel(subscriptionId);
+    const updateData = {
+        isPayment: false,
+        subscriptionId: "",
+        subscriptionPlane: "",
+        priceId: "",
+    };
+    yield user_model_1.User.findByIdAndUpdate(user.userId, updateData);
     return cancelSubcription;
 });
 const updateSubscriptionInStripe = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -138,7 +145,6 @@ const updateSubscriptionInStripe = (payload, userId) => __awaiter(void 0, void 0
     }
     const customerId = userInfo === null || userInfo === void 0 ? void 0 : userInfo.customerId;
     const selectedPlan = payment_constant_1.plans[planType];
-    console.log(planType, selectedPlan);
     if (!selectedPlan) {
         throw new AppError_1.default(400, "Invalid plan type");
     }

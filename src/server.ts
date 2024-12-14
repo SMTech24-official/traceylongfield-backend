@@ -13,6 +13,7 @@ async function main() {
    
      server.listen(config.port, () => {
       console.log(`app is listening on port ${config.port}`);
+      CreateAdmin()
     });
 
   } catch (err) {
@@ -21,7 +22,7 @@ async function main() {
 }
 
 main();
-CreateAdmin()
+
 process.on('unhandledRejection', (err) => {
   console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
   if (server) {

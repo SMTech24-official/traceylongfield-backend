@@ -51,6 +51,9 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!user) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
     }
+    if (!(user === null || user === void 0 ? void 0 : user.isPayment)) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Your payment is not completed! Please complete your payment');
+    }
     // checking if the user is already deleted
     const isVerified = user === null || user === void 0 ? void 0 : user.isVerified;
     if (!isVerified) {
@@ -183,15 +186,19 @@ const resetPassword = (payload) => __awaiter(void 0, void 0, void 0, function* (
     if (!isVerified) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'Your OTP is not Verified!');
     }
-    //localhost:3000?id=A-0001&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBLTAwMDEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDI4NTA2MTcsImV4cCI6MTcwMjg1MTIxN30.-T90nRaz8-KouKki1DkCSMAbsHyb9yDi0djZU3D6QO4
-    //hash new password
-    const newHashedPassword = yield argon2.hash(payload.newPassword);
-    yield user_model_1.User.findOneAndUpdate({
-        id: user._id,
-        role: user.role,
+    console.log(payload.newPassword);
+    const newHashedPassword = yield argon2.hash(payload.newPassword.toString());
+    console.log(newHashedPassword);
+    console.log(user);
+    const result = yield user_model_1.User.findOneAndUpdate({
+        _id: user._id,
     }, {
         password: newHashedPassword,
     });
+    if (!result) {
+        throw new Error('Failed to update password');
+    }
+    console.log(result);
 });
 // resend OTP for verification
 const resendOtp = (email) => __awaiter(void 0, void 0, void 0, function* () {

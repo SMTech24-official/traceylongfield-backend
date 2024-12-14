@@ -19,7 +19,7 @@ const getInvitationLink = (user) => __awaiter(void 0, void 0, void 0, function* 
     const { userId, email, role } = user;
     // generate token 
     const token = (0, auth_utils_1.createToken)({ userId, email, role }, config_1.default.jwt_access_secret, "365d");
-    const link = `${config_1.default.front_end_base_url}/singup?token=${token}`;
+    const link = `${config_1.default.front_end_base_url}/signup?token=${token}`;
     return link;
 });
 exports.inviteService = {

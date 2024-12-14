@@ -155,7 +155,8 @@ const updateUserProfile = (req) => __awaiter(void 0, void 0, void 0, function* (
     if (file) {
         image = yield fileUpload_1.fileUploader.uploadToDigitalOcean(file);
     }
-    const payload = Object.assign(Object.assign({ _id: req.user.userId }, body), { profileImage: image.Location });
+    const existUser = yield user_model_1.User.findOne({ id: req.user.userId });
+    const payload = Object.assign(Object.assign({ _id: req.user.userId }, body), { profileImage: (image === null || image === void 0 ? void 0 : image.Location) || (existUser === null || existUser === void 0 ? void 0 : existUser.profileImage) });
     const result = yield user_model_1.User.findByIdAndUpdate(req.user.userId, payload, { new: true }).select("-password");
     return result;
 });

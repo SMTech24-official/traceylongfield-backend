@@ -21,7 +21,6 @@ const couponInsertIntoDB = () => __awaiter(void 0, void 0, void 0, function* () 
         name: 'Pro Subscription',
         description: 'Access to premium features',
     });
-    console.log('Product created:', product);
     // Step 2: Create a Price for the Product
     const price = yield stripe.prices.create({
         unit_amount: 2000, // Price in cents ($20.00)
@@ -29,7 +28,6 @@ const couponInsertIntoDB = () => __awaiter(void 0, void 0, void 0, function* () 
         recurring: { interval: 'month' }, // Monthly subscription
         product: product.id,
     });
-    console.log('Price created:', price);
     // Step 3: Create a Coupon
     const coupon = yield stripe.coupons.create({
         name: 'New Year Sale - 25% Off',
@@ -37,13 +35,11 @@ const couponInsertIntoDB = () => __awaiter(void 0, void 0, void 0, function* () 
         duration: 'repeating',
         duration_in_months: 3, // Apply coupon for 3 months
     });
-    console.log('Coupon created:', coupon);
     // Step 4: Apply Coupon and Create Subscription
     const customer = yield stripe.customers.create({
         email: 'customer@example.com', // Replace with the customer's email
         name: 'John Doe',
     });
-    console.log('Customer created:', customer);
     // await stripe.paymentMethods.attach('pm_1QSBZrFGNtvHx4UtyI7lnedr', {
     //   customer: customer.id,
     // });
@@ -52,7 +48,6 @@ const couponInsertIntoDB = () => __awaiter(void 0, void 0, void 0, function* () 
         items: [{ price: price.id }],
         discounts: [{ coupon: coupon.id }], // Apply the coupon
     });
-    console.log('Subscription created:', subscription);
     return {
         product,
         price,
