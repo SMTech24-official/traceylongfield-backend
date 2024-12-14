@@ -10,6 +10,7 @@ const payload: any = {
   email: "admin@booksy.buzz",
     phoneNumber: "1234567890",
     password: "12345678",
+    isPayment:true,
     role: USER_ROLE.admin,
   };
 
