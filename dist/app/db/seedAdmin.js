@@ -40,10 +40,11 @@ const payload = {
     fullName: "Super",
     reviewerName: "Admin",
     amazonCountry: "US",
-    amazonAuthorPageLink: "http://",
-    email: "akonhasan@gmail.com",
+    amazonAuthorPageLink: "",
+    email: "admin@booksy.buzz",
     phoneNumber: "1234567890",
-    password: "123456",
+    password: "12345678",
+    isPayment: true,
     role: constant_1.USER_ROLE.admin,
 };
 const CreateAdmin = () => __awaiter(void 0, void 0, void 0, function* () {

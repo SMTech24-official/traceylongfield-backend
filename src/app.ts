@@ -1,4 +1,3 @@
-
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
@@ -49,15 +48,17 @@ const io = new Server(server, {
 });
 const messages: any = [];
 
-io.on("connection", async(socket) => {
+const userSockets = new Map(); // Map to manage userId -> Set of socket IDs
 
-  socket.emit("get_users", await chatService.getAllUsers())
+io.on("connection", async (socket) => {
+  // Send all users to the connected client
+  socket.emit("get_users", await chatService.getAllUsers());
+
   // Listen for "join" events to associate users with their roles
   socket.on("join", async (data) => {
-   
     const { userId, role } = data;
 
-    console.log(`User joined: ${userId}, Role: ${role}`);
+    // console.log(`User joined: ${userId}, Role: ${role}`);
 
     // Attach user-specific data to the socket
     socket.data.userId = userId;
@@ -68,23 +69,75 @@ io.on("connection", async(socket) => {
 
     // Send all previous messages to the connected user
     socket.emit("receive_message", preChat);
-
-    // Listen for "send_message" events from this client
-    socket.on("send_message", async (messageData) => {
-      // Save the message to the database
-      await chatService.chatInsertIntoDB(messageData);
-
-      // Broadcast the new message to all connected clients
-      io.emit("receive_message", await chatService.getChat({ userId, role }));
-    });
   });
 
+  // Ensure no duplicate listeners
+  socket.removeAllListeners("send_message");
+
+  // Listen for "send_message" events from this client
+  socket.on("send_message", async (messageData) => {
+    try {
+      // Save the new message to the database
+      const savedMessage = await chatService.chatInsertIntoDB(messageData);
+// console.log(savedMessage)
+      // Broadcast the new message to all connected clients
+      io.emit(
+        "receive_message",
+        await chatService.getChat({
+          userId: socket.data.userId,
+          role: socket.data.role,
+        })
+      );
+    } catch (error) {
+      console.error("Error saving message:", error);
+      socket.emit("error_message", "Failed to send message. Please try again.");
+    }
+  });
+
+  // Handle disconnection
   socket.on("disconnect", () => {
-   
+    console.log("User disconnected");
   });
 });
 
+// io.on("connection", async(socket) => {
+
+//   socket.emit("get_users", await chatService.getAllUsers())
+
+//   // Listen for "join" events to associate users with their roles
+//   socket.on("join", async (data) => {
+
+//     const { userId, role } = data;
+
+//     console.log(`User joined: ${userId}, Role: ${role}`);
+
+//     // Attach user-specific data to the socket
+//     socket.data.userId = userId;
+//     socket.data.role = role;
+
+//     // Fetch previous chat messages from the database
+//     const preChat = await chatService.getChat({ userId, role });
+
+//     // Send all previous messages to the connected user
+//     socket.emit("receive_message", preChat);
+
+//     // Listen for "send_message" events from this client
+//     socket.on("send_message", async (messageData) => {
+
+//       await chatService.chatInsertIntoDB(messageData);
+
+//       // Broadcast the new message to all connected clients
+//       io.emit("receive_message", await chatService.getChat({ userId, role }));
+//     });
+//   });
+
+//   socket.on("disconnect", () => {
+
+//   });
+// });
+
 // application routes
+
 app.use("/api", router);
 
 app.get("/", (req: Request, res: Response) => {

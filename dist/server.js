@@ -22,6 +22,7 @@ function main() {
             yield mongoose_1.default.connect(config_1.default.dataBaseUrl);
             app_1.default.listen(config_1.default.port, () => {
                 console.log(`app is listening on port ${config_1.default.port}`);
+                (0, seedAdmin_1.CreateAdmin)();
             });
         }
         catch (err) {
@@ -30,7 +31,6 @@ function main() {
     });
 }
 main();
-(0, seedAdmin_1.CreateAdmin)();
 process.on('unhandledRejection', (err) => {
     console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
     if (app_1.default) {

@@ -14,14 +14,17 @@ const user_model_1 = require("../users/user.model");
 const chat_model_1 = require("./chat.model");
 const chatInsertIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     // Example service logic for creating or fetching data
+    console.log("1st");
     const data = yield chat_model_1.Chat.create(payload);
     return data;
 });
 const getChat = (data) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("2nd");
     const chatUser = yield chat_model_1.Chat.find({ senderId: data.userId });
     return chatUser;
 });
 const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("3rd");
     const result = yield chat_model_1.Chat.aggregate([
         {
             $sort: { createdAt: -1 }, // Sort by createdAt in descending order to get the latest message

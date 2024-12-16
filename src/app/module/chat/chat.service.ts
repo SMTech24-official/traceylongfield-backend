@@ -4,11 +4,13 @@ import { Chat } from "./chat.model";
 
 const chatInsertIntoDB = async (payload: IChat) => {
   // Example service logic for creating or fetching data
+  // console.log("1st")
   const data = await Chat.create(payload);
   return data;
 };
 
 const getChat = async (data: any) => {
+  // console.log("2nd")
   const chatUser = await Chat.find({ senderId: data.userId });
   return chatUser;
 };
