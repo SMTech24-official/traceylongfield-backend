@@ -220,12 +220,10 @@ const resetPassword = async (
     if (!isVerified) {
         throw new AppError(httpStatus.FORBIDDEN, 'Your OTP is not Verified!');
     }
-    console.log(payload.newPassword)
+
 
 const newHashedPassword = await argon2.hash(payload.newPassword.toString());
 
-console.log(newHashedPassword)
-console.log(user)
 
    const result= await User.findOneAndUpdate(
         {
@@ -240,7 +238,7 @@ console.log(user)
     if(!result){
         throw new Error('Failed to update password');
     }
-    console.log(result)
+   
 };
 
 // resend OTP for verification

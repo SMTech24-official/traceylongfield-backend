@@ -4,6 +4,7 @@ import config from './app/config';
 import { deleteUnverifiedUsers } from './app/utils/deleteUnverifiedUser';
 import { CreateAdmin } from './app/db/seedAdmin';
 import server from './app';
+import { createPoints } from './app/db/buzzPoint';
 
 
 async function main() {
@@ -14,6 +15,7 @@ async function main() {
      server.listen(config.port, () => {
       console.log(`app is listening on port ${config.port}`);
       CreateAdmin()
+      createPoints()
     });
 
   } catch (err) {

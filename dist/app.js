@@ -61,7 +61,7 @@ io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
     // Listen for "join" events to associate users with their roles
     socket.on("join", (data) => __awaiter(void 0, void 0, void 0, function* () {
         const { userId, role } = data;
-        console.log(`User joined: ${userId}, Role: ${role}`);
+   
         // Attach user-specific data to the socket
         socket.data.userId = userId;
         socket.data.role = role;
@@ -80,47 +80,7 @@ io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
     socket.on("disconnect", () => {
     });
 }));
-// io.on("connection", async (socket) => {
-//   console.log(`Socket connected: ${socket.id}`);
-//   // Emit the list of users when a new user connects
-//   socket.emit("get_users", await chatService.getAllUsers());
-//   // Listen for "join" events to associate users with their roles
-//   socket.on("join", async (data) => {
-//     const { userId, role } = data;
-//     console.log(`User joined: ${userId}, Role: ${role}`);
-//     // Attach user-specific data to the socket
-//     socket.data.userId = userId;
-//     socket.data.role = role;
-//     // Join a room based on the user's ID or role
-//     const room = role === "admin" ? `admin:${userId}` : `user:${userId}`;
-//     socket.join(room);
-//     console.log(`Socket ${socket.id} joined room: ${room}`);
-//     // Fetch previous chat messages from the database
-//     const preChat = await chatService.getChat({ userId, role });
-//     // Send all previous messages to the connected user
-//     socket.emit("receive_message", preChat);
-//     // Ensure no duplicate listeners are added
-//     socket.removeAllListeners("send_message");
-//     // Listen for "send_message" events from this client
-//     socket.on("send_message", async (messageData) => {
-//       console.log(`Message received from ${userId}:`, messageData);
-//       // Save the message to the database
-//       await chatService.chatInsertIntoDB(messageData);
-//       // Determine the target room for broadcasting the message
-//       const targetRoom =
-//         role === "admin"
-//           ? `user:${messageData.targetUserId}` // Admin sends message to a specific user
-//           : `admin:${messageData.targetAdminId}`; // User sends message to a specific admin
-//       // Broadcast the new message to the specific room
-//       io.to(targetRoom).emit("receive_message", await chatService.getChat({ userId, role })
-//     );
-//     });
-//   });
-//   // Handle socket disconnection
-//   socket.on("disconnect", () => {
-//     console.log(`Socket disconnected: ${socket.id}`);
-//   });
-// });
+
 // application routes
 app.use("/api", routes_1.default);
 app.get("/", (req, res) => {

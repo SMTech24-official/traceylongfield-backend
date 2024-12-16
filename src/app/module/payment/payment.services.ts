@@ -195,7 +195,7 @@ const updateSubscriptionInStripe = async (payload: any, userId: string) => {
 };
 
 const createCoupon = async ()=>{
-  console.log("createCoupon")
+
 }
 export const paymentServices = {
 

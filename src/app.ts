@@ -58,6 +58,11 @@ io.on("connection", async (socket) => {
   socket.on("join", async (data) => {
     const { userId, role } = data;
 
+    const roomId=`Admin-${userId}`
+    socket.join(roomId);
+
+    socket.data.roomId = roomId;
+
     // console.log(`User joined: ${userId}, Role: ${role}`);
 
     // Attach user-specific data to the socket
@@ -77,17 +82,22 @@ io.on("connection", async (socket) => {
   // Listen for "send_message" events from this client
   socket.on("send_message", async (messageData) => {
     try {
+
+      const roomId = socket.data.roomId;
       // Save the new message to the database
       const savedMessage = await chatService.chatInsertIntoDB(messageData);
 // console.log(savedMessage)
-      // Broadcast the new message to all connected clients
-      io.emit(
-        "receive_message",
-        await chatService.getChat({
-          userId: socket.data.userId,
-          role: socket.data.role,
-        })
-      );
+      // // Broadcast the new message to all connected clients
+      // io.emit(
+      //   "receive_message",
+      //   await chatService.getChat({
+      //     userId: socket.data.userId,
+      //     role: socket.data.role,
+      //   })
+      // );
+
+
+      io.to(roomId).emit("receive_message", await chatService.getChat({ userId:socket.data.userId, role:socket.data.role }));
     } catch (error) {
       console.error("Error saving message:", error);
       socket.emit("error_message", "Failed to send message. Please try again.");
